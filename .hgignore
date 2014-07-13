@@ -1,0 +1,27 @@
+syntax: glob
+
+diff.txt
+
+bin/
+obj/
+Properties/
+Debug/
+Agents/
+Tic Tac Toe/
+
+*.user
+*.suo
+*.orig
+*.lastbuildstate
+*.log
+*.obj
+*.pch
+*.tlog
+*.pdb
+*.res
+*.sdf
+
+Intellisense Workaround/
+ipch/
+*.filters
+*.opensdf
