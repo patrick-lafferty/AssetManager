@@ -1,0 +1,707 @@
+﻿using Assets;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Linq;
+using System.Diagnostics;
+
+namespace Glitch2
+{
+    internal class MetadataHandler
+    {
+        //string metadataPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\Assets\Metadata\"));
+        string metadataPath = @"C:\ProjectStacks\RawAssets\Metadata\";
+
+        RawAssetWatcher assetWatcher;
+        AssetViewmodel viewmodel;        
+
+        internal MetadataHandler(Action<Action> invoke, AssetViewmodel viewmodel)
+        {
+            this.viewmodel = viewmodel;
+            
+            assetWatcher = new RawAssetWatcher(viewmodel,
+                error =>
+                {
+                    invoke(() =>
+                    {
+                        viewmodel.LogEvent(error);
+                        MessageBox.Show("Error while trying to update an asset, see log");
+                    });
+                },
+                success =>
+                {
+                    invoke(() => viewmodel.LogEvent(success));
+                },
+                asset =>
+                {
+                    invoke(() => updateDependents(asset));
+                }/*,
+                toolEvent =>
+                {
+                    invoke(() => client.ProcessEvent(toolEvent));
+                }*/
+
+            );
+        }
+        
+        //see ToolEvents\AssetMetadata.fs for metadata file format
+        List<MeshAsset> loadMeshes()
+        {            
+            var meshes = new List<MeshAsset>();
+
+            if (!Directory.Exists(metadataPath + "Meshes"))
+            {
+                Directory.CreateDirectory(metadataPath + "Meshes");
+            }
+
+            foreach(var filename in Directory.EnumerateFiles(metadataPath + "Meshes"))
+            {
+                var metadata = File.ReadAllLines(filename);
+
+                var mesh = new MeshAsset();
+
+                mesh.Name = System.IO.Path.GetFileNameWithoutExtension(filename);
+                mesh.Description = metadata[0].Split('=')[1].Trim();
+                mesh.VertexFormat = metadata[1].Split('=')[1].Trim();
+                mesh.LastUpdated = metadata[2].Split('=')[1].Trim();
+                mesh.SourceFilename = metadata[3].Split('=')[1].Trim();
+                mesh.Topology = (Topology)Enum.Parse(typeof(Topology), metadata[4].Split('=')[1].Trim());
+                mesh.ImportedFilename = metadata[5].Split('=')[1].Trim();
+
+                meshes.Add(mesh);
+            }
+
+            return meshes;
+        }
+
+        List<TextureAsset> loadTextures()
+        {
+            var textures = new List<TextureAsset>();
+
+            if (!Directory.Exists(metadataPath + "Textures"))
+            {
+                Directory.CreateDirectory(metadataPath + "Textures");
+            }
+
+            foreach (var filename in Directory.EnumerateFiles(metadataPath + "Textures"))
+            {
+                var metadata = File.ReadAllLines(filename);
+
+                var texture = new TextureAsset();
+
+                texture.Name = System.IO.Path.GetFileNameWithoutExtension(filename);
+                texture.Description = metadata[0].Split('=')[1].Trim();
+                texture.Dimensions = metadata[1].Split('=')[1].Trim();
+                texture.LastUpdated = metadata[2].Split('=')[1].Trim();
+                texture.SourceFilename = metadata[3].Split('=')[1].Trim();                
+                texture.ImportedFilename = metadata[4].Split('=')[1].Trim();
+
+                textures.Add(texture);
+            }
+
+            return textures;
+        }
+
+        Dictionary<ScriptAsset, string[]> loadScripts()
+        {
+            var scriptsAndDependencies = new Dictionary<ScriptAsset, string[]>();
+
+            if (!Directory.Exists(metadataPath + "Scripts"))
+            {
+                Directory.CreateDirectory(metadataPath + "Scripts");
+            }
+
+            foreach (var filename in Directory.EnumerateFiles(metadataPath + "Scripts"))
+            {
+                var metadata = File.ReadAllLines(filename);
+
+                var script = new ScriptAsset();
+
+                script.Name = System.IO.Path.GetFileNameWithoutExtension(filename);
+                script.Description = metadata[0].Split('=')[1].Trim();
+                script.LastUpdated = metadata[1].Split('=')[1].Trim();
+                script.SourceFilename = metadata[2].Split('=')[1].Trim();
+
+                var dependencies = metadata[3].Split('=')[1].Trim().Split(new [] {','}, StringSplitOptions.RemoveEmptyEntries);
+                
+                script.ImportedFilename = metadata[4].Split('=')[1].Trim();
+
+                scriptsAndDependencies.Add(script, dependencies);
+            }
+
+            return scriptsAndDependencies;
+        }
+
+        List<ShaderAsset> loadShaders()
+        {
+            var shaders = new List<ShaderAsset>();
+
+            if (!Directory.Exists(metadataPath + "Shaders"))
+            {
+                Directory.CreateDirectory(metadataPath + "Shaders");
+            }
+
+            foreach (var filename in Directory.EnumerateFiles(metadataPath + "Shaders"))
+            {
+                var metadata = File.ReadAllLines(filename);
+
+                var shader = new ShaderAsset();
+
+                shader.Name = System.IO.Path.GetFileNameWithoutExtension(filename);
+                shader.Description = metadata[0].Split('=')[1].Trim();
+                shader.Combination = (ShaderCombination)Enum.Parse(typeof(ShaderCombination), metadata[1].Split('=')[1].Trim());
+                shader.LastUpdated = metadata[2].Split('=')[1].Trim();
+                shader.SourceFilename = metadata[3].Split('=')[1].Trim();
+                shader.ImportedFilename = metadata[4].Split('=')[1].Trim();
+
+                shaders.Add(shader);
+            }
+
+            return shaders;
+        }
+        
+        object parseValue<T>(string data)
+        {
+            if (typeof(T) == typeof(float))
+            {
+                return float.Parse(data);
+            }
+            else if (typeof(T) == typeof(int))
+            {
+                return int.Parse(data);
+            }            
+            else if (typeof(T) == typeof(bool))
+            {
+                return bool.Parse(data);
+            }
+            else 
+            {
+                return null;
+            }
+        }
+
+        Vector2Parameter<T> parseVector2<T>(string name, string data)
+        {
+            var values = data.Trim().Split('*');
+            var x = parseValue<T>(values[0]);
+            var y = parseValue<T>(values[1]);
+
+            return new Vector2Parameter<T>() { Name = name, X = (T)x, Y = (T)y };
+        }
+
+        Vector3Parameter<T> parseVector3<T>(string name, string data)
+        {
+            var values = data.Trim().Split('*');
+            var x = parseValue<T>(values[0]);
+            var y = parseValue<T>(values[1]);
+            var z = parseValue<T>(values[2]);
+
+            return new Vector3Parameter<T>() { Name = name, X = (T)x, Y = (T)y, Z = (T)z};
+        }
+
+        Vector4Parameter<T> parseVector4<T>(string name, string data)
+        {
+            var values = data.Trim().Split('*');
+            var x = parseValue<T>(values[0]);
+            var y = parseValue<T>(values[1]);
+            var z = parseValue<T>(values[2]);
+            var w = parseValue<T>(values[3]);
+
+            return new Vector4Parameter<T>() { Name = name, X = (T)x, Y = (T)y, Z = (T)z, W = (T)w};
+        }
+
+        List<MaterialAsset> loadMaterials()
+        {
+            var materials = new List<MaterialAsset>();
+
+            if (!Directory.Exists(metadataPath + "Materials"))
+            {
+                Directory.CreateDirectory(metadataPath + "Materials");
+            }
+
+            foreach (var filename in Directory.EnumerateFiles(metadataPath + "Materials"))
+            {
+                var metadata = File.ReadAllLines(filename);
+
+                var material = new MaterialAsset();
+
+                material.Name = System.IO.Path.GetFileNameWithoutExtension(filename);
+                material.Description = metadata[0].Split('=')[1].Trim();
+                material.LastUpdated = metadata[1].Split('=')[1].Trim();
+                material.VertexShaderId = metadata[2].Split('=')[1].Trim();
+                material.GeometryShaderId = metadata[3].Split('=')[1].Trim();
+                material.PixelShaderId = metadata[4].Split('=')[1].Trim();
+                material.ShaderCombination = (ShaderCombination)Enum.Parse(typeof(ShaderCombination), metadata[5].Split('=')[1].Trim());
+                material.ImportedFilename = metadata[6].Split('=')[1].Trim();
+
+                var samplerLine = metadata[7].Split('=')[1].Trim();
+                var samplerConfigs = samplerLine.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+                
+                foreach(var config in samplerConfigs)
+                {
+                    var data = config.Split(',');
+                    var sampler = new Sampler()
+                    {
+                        Name = data[0].Trim(),
+                        Filter = (Filter)Enum.Parse(typeof(Filter), data[1].Trim()),
+                        AddressU = (TextureAddressMode)Enum.Parse(typeof(TextureAddressMode), data[2].Trim()),
+                        AddressV = (TextureAddressMode)Enum.Parse(typeof(TextureAddressMode), data[3].Trim()),
+                        AddressW = (TextureAddressMode)Enum.Parse(typeof(TextureAddressMode), data[4].Trim())
+                    };
+
+                    material.Samplers.Add(sampler);
+                    
+                }
+
+                var textureLine = metadata[8].Split('=')[1].Trim();
+                var textureConfigs = textureLine.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach(var config in textureConfigs)
+                {
+                    var data = config.Split(',');
+                    var texture = new Texture()
+                    {
+                        ShaderResourceViewName = data[0].Trim(),
+                        SourceId = data[1].Trim()
+                    };
+
+                    material.Textures.Add(texture);
+                }
+
+                var blendStateLine = metadata[9].Split('=')[1].Trim();
+                var blendConfigs = blendStateLine.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach(var config in blendConfigs)
+                {
+                    var data = config.Split(',');
+
+                    var renderTarget = new RenderTarget()
+                    {
+                        Index = int.Parse(data[0].Trim()),
+                        BlendEnabled = bool.Parse(data[1].Trim()),
+                        BlendOperation = (BlendOperation)Enum.Parse(typeof(BlendOperation), data[2].Trim()),
+                        BlendOperationAlpha = (BlendOperation)Enum.Parse(typeof(BlendOperation), data[3].Trim()),
+                        SourceBlend = (BlendOption)Enum.Parse(typeof(BlendOption), data[4].Trim()),
+                        DestinationBlend = (BlendOption)Enum.Parse(typeof(BlendOption), data[5].Trim()),
+                        SourceBlendAlpha = (BlendOption)Enum.Parse(typeof(BlendOption), data[6].Trim()),
+                        DestinationBlendAlpha = (BlendOption)Enum.Parse(typeof(BlendOption), data[7].Trim()),
+                        RenderTargetWriteMask = (WriteMask)Enum.Parse(typeof(WriteMask), data[8].Trim())
+                    };
+
+                    material.BlendState.RenderTargets.Add(renderTarget);
+                }
+
+                for (int i = 10; i < metadata.Length; i++)
+                {
+                    var parameterGroupLine = metadata[i].Split('=')[1].Trim();
+                    var groupConfigs = parameterGroupLine.Split('#');
+
+                    var parameterGroup = new ParameterGroup() { Name = groupConfigs[0].Trim() };
+
+                    var parameterConfigs = groupConfigs[1].Trim().Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+
+                    foreach(var config in parameterConfigs)
+                    {
+                        var data = config.Split(',');
+
+                        var parameterType = data[1].Trim();
+
+                        if (parameterType == "float")
+                        {
+                            var parameter = new ScalarParameter<float>() { Name = data[0].Trim(), Value = float.Parse(data[2].Trim()) };
+                            parameterGroup.Parameters.Add(parameter);
+                        }
+                        else if (parameterType == "int")
+                        {
+                            var parameter = new ScalarParameter<int>() { Name = data[0].Trim(), Value = int.Parse(data[2].Trim()) };
+                            parameterGroup.Parameters.Add(parameter);
+                        }
+                        else if (parameterType == "bool")
+                        {
+                            var parameter = new ScalarParameter<bool>() { Name = data[0].Trim(), Value = bool.Parse(data[2].Trim()) };
+                            parameterGroup.Parameters.Add(parameter);
+                        }
+                        else if (parameterType == "float2")
+                        {
+                            var parameter = parseVector2<float>(data[0].Trim(), data[2]);
+                            parameterGroup.Parameters.Add(parameter);
+                        }
+                        else if (parameterType == "int2")
+                        {
+                            var parameter = parseVector2<int>(data[0].Trim(), data[2]);
+                            parameterGroup.Parameters.Add(parameter);
+                        }
+                        else if (parameterType == "bool2")
+                        {
+                            var parameter = parseVector2<bool>(data[0].Trim(), data[2]);
+                            parameterGroup.Parameters.Add(parameter);
+                        }
+                        else if (parameterType == "float3")
+                        {
+                            var parameter = parseVector3<float>(data[0].Trim(), data[2]);
+                            parameterGroup.Parameters.Add(parameter);
+                        }
+                        else if (parameterType == "int3")
+                        {
+                            var parameter = parseVector3<int>(data[0].Trim(), data[2]);
+                            parameterGroup.Parameters.Add(parameter);
+                        }
+                        else if (parameterType == "bool3")
+                        {
+                            var parameter = parseVector3<bool>(data[0].Trim(), data[2]);
+                            parameterGroup.Parameters.Add(parameter);
+                        }
+                        else if (parameterType == "float4")
+                        {
+                            var parameter = parseVector4<float>(data[0].Trim(), data[2]);
+                            parameterGroup.Parameters.Add(parameter);
+                        }
+                        else if (parameterType == "int4")
+                        {
+                            var parameter = parseVector4<int>(data[0].Trim(), data[2]);
+                            parameterGroup.Parameters.Add(parameter);
+                        }
+                        else if (parameterType == "bool4")
+                        {
+                            var parameter = parseVector4<bool>(data[0].Trim(), data[2]);
+                            parameterGroup.Parameters.Add(parameter);
+                        }
+                        else if (parameterType == "float4 array")
+                        {
+                            var elements = data[2].Split('$');
+
+                            var array = new ArrayParameter<float>();
+                            array.Name = data[0].Trim();                            
+
+                            foreach(var element in elements)
+                            {
+                                var elementData = element.Split(',');
+                                var parameter = parseVector4<float>(elementData[0].Trim(), elementData[2]);
+                                array.Elements.Add(parameter);                                
+                            }
+
+                            parameterGroup.Parameters.Add(array);
+                        }
+                        else if (parameterType == "int4 array")
+                        {
+                            var elements = data[2].Split('$');
+
+                            var array = new ArrayParameter<int>();
+                            array.Name = data[0].Trim();
+
+                            foreach (var element in elements)
+                            {
+                                var elementData = element.Split(',');
+                                var parameter = parseVector4<int>(elementData[0].Trim(), elementData[2]);
+                                array.Elements.Add(parameter);
+                            }
+
+                            parameterGroup.Parameters.Add(array);
+                        }
+                        else if (parameterType == "bool4 array")
+                        {
+                            var elements = data[2].Split('$');
+
+                            var array = new ArrayParameter<bool>();
+                            array.Name = data[0].Trim();
+
+                            foreach (var element in elements)
+                            {
+                                var elementData = element.Split(',');
+                                var parameter = parseVector4<bool>(elementData[0].Trim(), elementData[2]);
+                                array.Elements.Add(parameter);
+                            }
+
+                            parameterGroup.Parameters.Add(array);
+                        }
+                    }
+
+                    material.ParameterGroups.Add(parameterGroup);
+
+                }
+
+                materials.Add(material);
+            }
+
+            return materials;
+        }
+
+        List<FontAsset> loadFonts()
+        {
+            var fonts = new List<FontAsset>();
+
+            if (!Directory.Exists(metadataPath + "Fonts"))
+            {
+                Directory.CreateDirectory(metadataPath + "Fonts");
+            }
+
+            foreach (var filename in Directory.EnumerateFiles(metadataPath + "Fonts"))
+            {
+                var metadata = File.ReadAllLines(filename);
+
+                var font = new FontAsset();
+
+                font.Name = System.IO.Path.GetFileNameWithoutExtension(filename);
+                font.Description = metadata[0].Split('=')[1].Trim();
+                font.LastUpdated = metadata[1].Split('=')[1].Trim();
+                font.FontName = metadata[2].Split('=')[1].Trim();
+                font.ImportedFilename = metadata[3].Split('=')[1].Trim();
+
+                fonts.Add(font);
+            }
+
+            return fonts;
+        }
+
+        List<UIAsset> loadUIs()
+        {
+            var uis = new List<UIAsset>();
+
+            if (!Directory.Exists(metadataPath + "UIs"))
+            {
+                Directory.CreateDirectory(metadataPath + "UIs");
+            }
+
+            foreach (var filename in Directory.EnumerateFiles(metadataPath + "UIs"))
+            {
+                var metadata = File.ReadAllLines(filename);
+
+                var ui = new UIAsset();
+
+                ui.Name = System.IO.Path.GetFileNameWithoutExtension(filename);
+                ui.Description = metadata[0].Split('=')[1].Trim();
+                ui.LastUpdated = metadata[1].Split('=')[1].Trim();
+                ui.ImportedFilename = metadata[2].Split('=')[1].Trim();
+                ui.DefaultMesh = metadata[3].Split('=')[1].Trim();
+                ui.DefaultMaterial = metadata[4].Split('=')[1].Trim();
+                ui.DefaultFont = metadata[5].Split('=')[1].Trim();                
+
+                uis.Add(ui);
+            }
+
+            return uis;
+        }
+
+        internal Dictionary<ScriptAsset, string[]> PopulateDatagrids()
+        {
+            loadMeshes().ForEach(mesh => viewmodel.Meshes.Add(mesh));
+
+            loadTextures().ForEach(texture => viewmodel.Textures.Add(texture));
+
+            var scriptDependencies = loadScripts();//.ForEach(script => viewmodel.Scripts.Add(script));
+            foreach(var kvp in scriptDependencies)
+            {
+                viewmodel.Scripts.Add(kvp.Key);
+            }
+
+            loadShaders().ForEach(shader => viewmodel.Shaders.Add(shader));
+
+            loadMaterials().ForEach(material => viewmodel.Materials.Add(material));
+
+            loadFonts().ForEach(font => viewmodel.Fonts.Add(font));
+
+            loadUIs().ForEach(ui => viewmodel.UIs.Add(ui));
+
+            return scriptDependencies;
+        }
+
+        /*
+             * if a raw asset was modified when glitch wasn't running, it wouldn't have been updated.
+             * so on startup, check all asset write times to see if raw time matches imported time
+             */
+        internal void CheckForOfflineAssetUpdates()
+        {
+            foreach (var mesh in viewmodel.Meshes)
+            {
+                var writeTime = System.IO.File.GetLastWriteTime(mesh.SourceFilename);
+                var lastKnownTime = DateTime.Parse(mesh.LastUpdated);
+
+                if (writeTime > lastKnownTime)
+                {
+                    //this asset was updated while glitch was offline, update it
+                    if (assetWatcher.TryUpdateAsset(mesh))
+                    {
+                        /*var updateAssetEvent = new ToolEvents.UpdateAssetEvent() { Asset = mesh, AssetType = ToolEvents.AssetType.Mesh };
+                        client.ProcessEvent(updateAssetEvent);*/
+                    }
+                }
+            }
+
+            foreach (var texture in viewmodel.Textures)
+            {
+                var writeTime = System.IO.File.GetLastWriteTime(texture.SourceFilename);
+                var lastKnownTime = DateTime.Parse(texture.LastUpdated);
+
+                if (writeTime > lastKnownTime)
+                {
+                    //this asset was updated while glitch was offline, update it
+                    if (assetWatcher.TryUpdateAsset(texture))
+                    {
+                        /*var updateAssetEvent = new ToolEvents.UpdateAssetEvent() { Asset = texture, AssetType = ToolEvents.AssetType.Texture };
+                        client.ProcessEvent(updateAssetEvent);*/
+                    }
+                }
+            }
+
+            foreach (var script in viewmodel.Scripts)
+            {
+                var writeTime = System.IO.File.GetLastWriteTime(script.SourceFilename);
+                var lastKnownTime = DateTime.Parse(script.LastUpdated);
+
+                if (writeTime > lastKnownTime)
+                {
+                    //this asset was updated while glitch was offline, update it
+                    if (assetWatcher.TryUpdateAsset(script))
+                    {
+                        /*var updateAssetEvent = new ToolEvents.UpdateAssetEvent() { Asset = script, AssetType = ToolEvents.AssetType.Script };
+                        client.ProcessEvent(updateAssetEvent);*/
+
+                        updateDependents(script);
+                    }
+                }
+            }
+
+            foreach (var shader in viewmodel.Shaders)
+            {
+                var writeTime = System.IO.File.GetLastWriteTime(shader.SourceFilename);
+                var lastKnownTime = DateTime.Parse(shader.LastUpdated);
+
+                if (writeTime > lastKnownTime)
+                {
+                    //this asset was updated while glitch was offline, update it
+                    if (assetWatcher.TryUpdateAsset(shader))
+                    {
+                        /*var updateAssetEvent = new ToolEvents.UpdateAssetEvent() { Asset = shader, AssetType = ToolEvents.AssetType.Shader };
+                        client.ProcessEvent(updateAssetEvent);*/
+                    }
+                }
+            }
+
+            //materials omitted because they don't have a raw source, they're directly written in glitch
+        }
+
+        internal void updateDependents(Object asset)
+        {
+            if (asset is ScriptAsset)
+            {
+                var script = asset as ScriptAsset;
+
+                if (viewmodel.ScriptDependencies.ContainsKey(script.Name))
+                {
+                    foreach (var dependent in viewmodel.ScriptDependencies[script.Name])
+                    {
+                        if (assetWatcher.TryUpdateAsset(dependent))
+                        {
+                            /*var updateAssetEvent = new ToolEvents.UpdateAssetEvent() { Asset = dependent, AssetType = ToolEvents.AssetType.Script };
+                            client.ProcessEvent(updateAssetEvent);*/
+                        }
+                    }
+                }
+            }
+            else if (asset is ShaderAsset)
+            {
+                var shader = asset as ShaderAsset;
+                var materialsUsingThis = viewmodel.Materials.Where(
+                           m => m.VertexShader == shader
+                               || m.GeometryShader == shader
+                               || m.PixelShader == shader);
+
+                foreach (var material in materialsUsingThis)
+                {
+                    /*var update = new ToolEvents.UpdateAssetEvent() { Asset = material, AssetType = ToolEvents.AssetType.Material };
+                    client.ProcessEvent(update);*/
+                }
+            }
+            else if (asset is TextureAsset)
+            {
+                var texture = asset as TextureAsset;
+
+                var materialsUsingThis = viewmodel.Materials.Where(
+                    m => m.Textures.Any(t => t.Source == texture));
+
+                foreach (var material in materialsUsingThis)
+                {
+                    /*var update = new ToolEvents.UpdateAssetEvent() { Asset = material, AssetType = ToolEvents.AssetType.Material };
+                    client.ProcessEvent(update);*/
+                }
+            }
+        }
+
+        /*
+        Materials depend on: shaders, textures. Materials only store shader/texture ids in mongo,
+        so once everythings loaded, the actual ShaderAsset/TextureAsset properties of material
+        needs to be filled
+        */
+        internal void ResolveDependencies(Dictionary<ScriptAsset, string[]> scriptDependencies)
+        {
+            foreach (var material in viewmodel.Materials)
+            {
+                if (!string.IsNullOrEmpty(material.VertexShaderId))
+                {
+                    var vertexShader = viewmodel.Shaders.First(s => s.Name == material.VertexShaderId);
+
+                    Debug.Assert(vertexShader != null, "Material: " + material.Name + " depends on vertex shader: " +
+                        material.VertexShaderId + ", but it is no longer in the database! (this shouldnt happen!");
+
+                    material.VertexShader = vertexShader;
+                }
+
+                if (!string.IsNullOrEmpty(material.GeometryShaderId))
+                {
+                    var geometryShader = viewmodel.Shaders.First(s => s.Name == material.GeometryShaderId);
+
+                    Debug.Assert(geometryShader != null, "Material: " + material.Name + " depends on geometry shader: " +
+                        material.GeometryShaderId + ", but it is no longer in the database! (this shouldnt happen!");
+
+                    material.GeometryShader = geometryShader;
+                }
+
+                if (!string.IsNullOrEmpty(material.PixelShaderId))
+                {
+                    var pixelShader = viewmodel.Shaders.First(s => s.Name == material.PixelShaderId);
+
+                    Debug.Assert(pixelShader != null, "Material: " + material.Name + " depends on pixel shader: " +
+                        material.PixelShaderId + ", but it is no longer in the database! (this shouldnt happen!");
+
+                    material.PixelShader = pixelShader;
+                }
+
+                foreach (var texture in material.Textures)
+                {
+                    var source = viewmodel.Textures.First(t => t.Name == texture.SourceId);
+
+                    Debug.Assert(source != null, "Material: " + material.Name + " depends on texture: " +
+                        texture.SourceId + ", but it is no longer in the database! (this shouldnt happen!");
+
+                    texture.Source = source;
+                }
+            }
+
+            foreach(var kvp in scriptDependencies)
+            {
+                var script = kvp.Key;
+                var dependencyNames = kvp.Value;
+
+                foreach(var name in dependencyNames)
+                {
+                    script.Dependencies.Add(viewmodel.Scripts.First(s => s.Name == name));
+                }
+            }
+
+            foreach (var script in viewmodel.Scripts)
+            {
+                foreach (var dependency in script.Dependencies)
+                {
+                    if (!viewmodel.ScriptDependencies.ContainsKey(dependency.Name))
+                    {
+                        viewmodel.ScriptDependencies.Add(dependency.Name, new List<ScriptAsset>());
+                    }
+
+                    viewmodel.ScriptDependencies[dependency.Name].Add(script);
+                }
+            }
+        }
+    }
+}

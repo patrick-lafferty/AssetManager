@@ -1,0 +1,61 @@
+﻿<Window x:Class="Glitch2.ImportShader"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ImportShader" Width="600" Height="300" >
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush>
+
+                <GradientStop 
+                    Color="SkyBlue" 
+                    Offset="0"/>
+
+                <GradientStop 
+                    Color="AliceBlue" 
+                    Offset="1"/>
+
+            </LinearGradientBrush>
+
+        </Grid.Background>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>           
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Name"/>
+        <TextBox Grid.Column="1"
+                 Text="{Binding Name}"/>
+
+        <TextBlock Text="Filename" 
+                   Grid.Row="1"/>
+        <StackPanel Grid.Row="1"
+                    Grid.Column="1">
+            <TextBox Text="{Binding SourceFilename}"/>
+            <Button Content="..." 
+                    Click="Open"/>
+        </StackPanel>
+
+
+        <TextBlock Text="Description" 
+                   Grid.Row="2"/>
+        <TextBox Grid.Column="1"
+                 Grid.Row="2"
+                 Text="{Binding Description}"
+                 AcceptsReturn="True"/>
+
+        <Button Content="Import" 
+                Grid.Row="3"
+                Click="Import"/>
+        <TextBlock Grid.Column="1" 
+                   Grid.Row="3"
+                   x:Name="status"/>
+    </Grid>
+</Window>
