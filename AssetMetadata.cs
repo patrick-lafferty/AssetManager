@@ -12,6 +12,32 @@ namespace AssetManager
     {
         static string MetadataPath = @"C:\ProjectStacks\RawAssets\Metadata\";
 
+        static void deleteMetadata(Asset asset, string path)
+        {
+            if (File.Exists(MetadataPath + path + asset.Name + ".meta"))
+            {
+                File.Delete(MetadataPath + path + asset.Name + ".meta");
+            }
+        }
+
+        static internal void createMeshMetadata(MeshAsset mesh)
+        {
+            var metadata = new StringBuilder();
+            metadata.AppendLine("Description= " + mesh.Description)
+                .AppendLine("VertexFormat= " + mesh.VertexFormat)
+                .AppendLine("LastUpdated= " + mesh.LastUpdated)
+                .AppendLine("SourceFilename= " + mesh.SourceFilename)
+                .AppendLine("Topology= " + mesh.Topology.ToString())
+                .AppendLine("ImportedFilename= " + mesh.ImportedFilename);
+
+            File.WriteAllText(MetadataPath + "Meshes/" + mesh.Name + ".meta", metadata.ToString());
+        }
+
+        static internal void deleteMeshMetadata(MeshAsset mesh)
+        {
+            deleteMetadata(mesh, "Meshes/");
+        }
+
         static internal void createShaderMetadata(ShaderAsset shader)
         {
             var metadata = new StringBuilder();
@@ -22,14 +48,6 @@ namespace AssetManager
                 .AppendLine("ImportedFilename= " + shader.ImportedFilename);
 
             File.WriteAllText(MetadataPath + "Shaders/" + shader.Name + ".meta", metadata.ToString());
-        }
-
-        static void deleteMetadata(Asset asset, string path)
-        {
-            if (File.Exists(MetadataPath + path + asset.Name + ".meta"))
-            {
-                File.Delete(MetadataPath + path + asset.Name + ".meta");
-            }
         }
 
         static internal void deleteShaderMetadata(ShaderAsset shader)

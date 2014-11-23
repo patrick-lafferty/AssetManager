@@ -62,7 +62,7 @@ namespace Glitch2
             {                
                 /*var newAssetEvent = new ToolEvents.NewAssetEvent() { Asset = import.asset, AssetType = ToolEvents.AssetType.Mesh };
                 client.ProcessEvent(newAssetEvent);*/
-
+                AssetMetadata.createMeshMetadata(import.asset);
                 viewmodel.Meshes.Add(import.asset);
             }
             else
@@ -131,7 +131,7 @@ namespace Glitch2
                 /*var deleteAssetEvent = new ToolEvents.DeleteAssetEvent() { Asset = viewmodel.SelectedMesh, AssetType = ToolEvents.AssetType.Mesh };
 
                 client.ProcessEvent(deleteAssetEvent);*/
-
+                AssetMetadata.deleteMeshMetadata(viewmodel.SelectedMesh);
                 System.IO.File.Delete(viewmodel.SelectedMesh.ImportedFilename);
                 viewmodel.Meshes.Remove(viewmodel.SelectedMesh);
             }

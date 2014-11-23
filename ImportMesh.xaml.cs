@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.IO;
 using Assets;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 
 namespace Glitch2
@@ -43,6 +44,21 @@ namespace Glitch2
             this.DataContext = asset;
         }
 
+        string import(string source)
+        {
+            var process = new Process();
+            process.StartInfo.FileName = @"C:\ProjectStacks\Tools\Debug\MeshImporter.exe";
+            process.StartInfo.Arguments = asset.SourceFilename + " " + (@"C:\ProjectStacks\ImportedAssets\Meshes\" + Path.GetFileNameWithoutExtension(asset.SourceFilename)) + ".mesh";
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardError = true;
+            process.Start();
+
+            var error = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+
+            return error;
+        }
+
         private void Import(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(asset.Name)
@@ -55,7 +71,7 @@ namespace Glitch2
                 return;
             }
 
-            string meshesPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\Assets\Meshes\"));
+            string meshesPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\ImportedAssets\Meshes\"));
             var outputName = System.IO.Path.Combine(meshesPath, System.IO.Path.ChangeExtension(asset.Name, "mesh"));
 
             if (!Directory.Exists(meshesPath))
@@ -71,7 +87,23 @@ namespace Glitch2
                 return;
             }
 
-            string error;
+            var result = import(asset.ImportedFilename); 
+
+            if (!string.IsNullOrEmpty(result))
+            {
+                status.Text = result;
+                Error = result;
+            }
+            else
+            {
+                asset.LastUpdated = DateTime.Now.ToString();
+
+                if (this.IsVisible)
+                {
+                    this.DialogResult = true;
+                    this.Close();
+                }
+            }      
             /*var result = MeshImporter.Import(asset, out error);
 
             if (result)
