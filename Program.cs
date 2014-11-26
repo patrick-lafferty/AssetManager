@@ -247,28 +247,49 @@ namespace ImageConverter
                 return image;
 			}
 		}
-
-        static void setMasks(PixelFormat ddsFormat, System.Windows.Media.PixelFormat format)
+        
+        static int getDXGIFormat(System.Windows.Media.PixelFormat format)
         {
-            if (format == PixelFormats.Gray8)
+            //(int)DXGI_FORMAT.DXGI_FORMAT_R8_UNORM;
+            //bgr24, bgra32, rbga64
+            if (format == PixelFormats.Bgra32)
             {
-                ddsFormat.rBitMask = format.Masks[0].Mask[0];
-                ddsFormat.gBitMask = 0;
-                ddsFormat.bBitMask = 0;
-                ddsFormat.aBitMask = 0;
-            }            
+                return (int)DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+            }
+            else if (format == PixelFormats.Bgr24)
+            {
+                return (int)DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+            }
+            else if (format == PixelFormats.Rgba64)
+            {
+                return (int)DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_FLOAT;
+            }
+            else if (format == PixelFormats.Gray8)
+            {
+                return (int)DXGI_FORMAT.DXGI_FORMAT_R8_UNORM;
+            }
+            else
+            {
+                throw new Exception("unknown format");
+            }
         }
 
-		static void Main(string[] args)
+		static int Main(string[] args)
 		{
-            var filename = @"c:\ProjectStacks\RawAssets\Textures\Roughness\first.png";
+            if (args.Length != 2)
+            {
+	            Console.WriteLine("syntax: ImageConverter {input fullpath} {output fullpath}");
+                return 1;  
+            }
+
+            var filename = args[0]; //@"c:\ProjectStacks\RawAssets\Textures\Roughness\first.png";
 
             var image = loadImage(filename);
 			
 			var outputName = Path.GetFileNameWithoutExtension(filename);
 
 			var textureType = new DirectoryInfo(filename).Parent.Name;
-			var output = @"C:\ProjectStacks\ImportedAssets\Textures\" + textureType + @"\" + outputName + ".dds";
+            var output = args[1]; //@"C:\ProjectStacks\ImportedAssets\Textures\" + textureType + @"\" + outputName + ".dds";
 
 			const int DDS_MAGIC_NUMBER = 0x20534444;
 
@@ -283,8 +304,7 @@ namespace ImageConverter
             header.pixelFormat.size = 32;
             header.pixelFormat.flags = (uint)PixelFormatFlags.FOUR_CC;
             header.pixelFormat.fourCC = ('D') | ('X' << 8) | ('1' << 16) | ('0' << 24);
-            header.pixelFormat.rgbBitCount = (uint)image.format.BitsPerPixel;
-            setMasks(header.pixelFormat, image.format);
+            header.pixelFormat.rgbBitCount = (uint)image.format.BitsPerPixel;            
 
             header.caps = (uint)Caps.TEXTURE;
             header.caps2 = 0;
@@ -292,7 +312,7 @@ namespace ImageConverter
             header.caps4 = 0;
 
             HeaderDXT10 dxtHeader = new HeaderDXT10();
-            dxtHeader.dxgiFormat = (int)DXGI_FORMAT.DXGI_FORMAT_R8_UNORM;
+            dxtHeader.dxgiFormat = getDXGIFormat(image.format); 
             dxtHeader.resourceDimension = (int)D3D10_RESOURCE_DIMENSION.D3D10_RESOURCE_DIMENSION_TEXTURE2D;
             dxtHeader.miscFlag = 0;
             dxtHeader.arraySize = 1;
@@ -346,6 +366,8 @@ namespace ImageConverter
 			}
 
             File.WriteAllBytes(output, buffer);
-		}
+
+            return 0;
+		}        
 	}
 }
