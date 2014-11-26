@@ -101,8 +101,9 @@ namespace Glitch2
                 if (this.IsVisible)
                 {
                     this.DialogResult = true;
-                    this.Close();
                 }
+                
+                this.Close();                
             }      
             /*var result = MeshImporter.Import(asset, out error);
 

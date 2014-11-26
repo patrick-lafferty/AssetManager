@@ -38,6 +38,25 @@ namespace AssetManager
             deleteMetadata(mesh, "Meshes/");
         }
 
+        static internal void createTextureMetadata(TextureAsset texture)
+        {
+            var metadata = new StringBuilder();
+            metadata.AppendLine("Description= " + texture.Description)
+                .AppendLine("Width= " + texture.Width)
+                .AppendLine("Height= " + texture.Height)
+                .AppendLine("Format= " + texture.Format)
+                .AppendLine("LastUpdated= " + texture.LastUpdated)
+                .AppendLine("SourceFilename= " + texture.SourceFilename)
+                .AppendLine("ImportedFilename= " + texture.ImportedFilename);
+
+            File.WriteAllText(MetadataPath + "Textures/" + texture.Name + ".meta", metadata.ToString());
+        }
+
+        static internal void deleteTextureMetadata(TextureAsset texture)
+        {
+            deleteMetadata(texture, "Textures/");
+        }
+
         static internal void createShaderMetadata(ShaderAsset shader)
         {
             var metadata = new StringBuilder();
@@ -87,10 +106,10 @@ namespace AssetManager
 
             var textures = new StringBuilder();
 
-            //texture format: Textures= srvName, sourceId; (texture 2); ...
+            //texture format: Textures= slot, sourceId; (texture 2); ...
             foreach(var texture in material.Textures)
             {
-                textures.Append(texture.ShaderResourceViewName)
+                textures.Append(texture.TextureSlot)
                     .Append(",")
                     .Append(texture.SourceId)
                     .Append(";");

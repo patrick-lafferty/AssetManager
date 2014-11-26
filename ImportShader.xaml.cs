@@ -96,8 +96,9 @@ namespace Glitch2
                 if (this.IsVisible)
                 {
                     this.DialogResult = true;
-                    this.Close();
                 }
+                
+                this.Close();                
             }                       
         }
 

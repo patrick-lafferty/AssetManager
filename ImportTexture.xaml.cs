@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.IO;
 using Microsoft.Win32;
 using Assets;
+using System.Diagnostics;
 
 namespace Glitch2
 {
@@ -44,6 +45,21 @@ namespace Glitch2
             return BitConverter.ToInt32(bytes, 0);
         }
 
+        string import(string input, string output)
+        {
+            var process = new Process();
+            process.StartInfo.FileName = @"C:\ProjectStacks\Tools\Debug\ImageConverter.exe";
+            process.StartInfo.Arguments = input + " " + output;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardError = true;
+            process.Start();
+
+            var error = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+
+            return error;
+        }
+
         private void Import(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(asset.Name)
@@ -54,8 +70,9 @@ namespace Glitch2
                 return;
             }
 
-            string texturesPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\Assets\Textures\"));
-            var outputName = System.IO.Path.Combine(texturesPath, System.IO.Path.ChangeExtension(asset.Name, "png"));
+            string texturesPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\ImportedAssets\Textures\"));
+            texturesPath += new DirectoryInfo(asset.SourceFilename).Parent.Name;
+            var outputName = System.IO.Path.Combine(texturesPath, System.IO.Path.ChangeExtension(asset.Name, "dds"));
 
             if (!Directory.Exists(texturesPath))
             {
@@ -70,24 +87,33 @@ namespace Glitch2
                 return;
             }
 
-            //TextureImporter.Import(asset);
+            var result = import(asset.SourceFilename, asset.ImportedFilename);
 
-            using (var stream = File.OpenRead(asset.ImportedFilename))
+            if (!string.IsNullOrEmpty(result))
             {
-                using (var reader = new BinaryReader(stream))
-                {
-                    reader.ReadBytes(16);
-
-                    int width = convertBigToLittleEndian(reader.ReadInt32());
-                    int height = convertBigToLittleEndian(reader.ReadInt32());
-
-                    asset.Dimensions = width.ToString() + " x " + height.ToString();
-                }
+                status.Text = result;                
             }
+            else
+            {
+                asset.LastUpdated = DateTime.Now.ToString();
 
-            this.DialogResult = true;
+                using (var stream = File.OpenRead(asset.ImportedFilename))
+                {
+                    using (var reader = new BinaryReader(stream))
+                    {
+                        reader.BaseStream.Position = 12;
 
-            this.Close();
+                        asset.Height = reader.ReadInt32().ToString();
+                        asset.Width = reader.ReadInt32().ToString();
+
+                        reader.BaseStream.Position = 128;
+                        asset.Format = (DXGI_FORMAT)reader.ReadInt32();
+                    }
+                }
+
+                this.DialogResult = true;
+                this.Close();
+            }            
         }
 
         private void Open(object sender, RoutedEventArgs e)

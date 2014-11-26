@@ -39,6 +39,12 @@ namespace Glitch2
         string lastNotifiedName;
         DateTime lastNotifiedTime;
 
+        internal void stopWatching()
+        {
+            watcher.EnableRaisingEvents = false;
+            watcher.Dispose();
+        }
+
         internal bool TryUpdateAsset(Object asset)
         {
             bool finished = false;

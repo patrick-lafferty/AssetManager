@@ -45,6 +45,11 @@ namespace Glitch2
 
             );
         }
+
+        internal void stopWatchingAssets()
+        {
+            assetWatcher.stopWatching();
+        }
         
         //see ToolEvents\AssetMetadata.fs for metadata file format
         List<MeshAsset> loadMeshes()
@@ -93,10 +98,12 @@ namespace Glitch2
 
                 texture.Name = System.IO.Path.GetFileNameWithoutExtension(filename);
                 texture.Description = metadata[0].Split('=')[1].Trim();
-                texture.Dimensions = metadata[1].Split('=')[1].Trim();
-                texture.LastUpdated = metadata[2].Split('=')[1].Trim();
-                texture.SourceFilename = metadata[3].Split('=')[1].Trim();                
-                texture.ImportedFilename = metadata[4].Split('=')[1].Trim();
+                texture.Width = metadata[1].Split('=')[1].Trim();
+                texture.Height = metadata[2].Split('=')[1].Trim();
+                texture.Format = (DXGI_FORMAT)Enum.Parse(typeof(DXGI_FORMAT), metadata[3].Split('=')[1].Trim());
+                texture.LastUpdated = metadata[4].Split('=')[1].Trim();
+                texture.SourceFilename = metadata[5].Split('=')[1].Trim();                
+                texture.ImportedFilename = metadata[6].Split('=')[1].Trim();
 
                 textures.Add(texture);
             }
@@ -263,7 +270,7 @@ namespace Glitch2
                     var data = config.Split(',');
                     var texture = new Texture()
                     {
-                        ShaderResourceViewName = data[0].Trim(),
+                        TextureSlot = Int32.Parse(data[0].Trim()),
                         SourceId = data[1].Trim()
                     };
 

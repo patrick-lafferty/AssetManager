@@ -37,11 +37,16 @@ namespace Glitch2
             Action<Action> invoke = f => this.Dispatcher.Invoke(() => f());
 
             metadataHandler = new MetadataHandler(invoke, viewmodel);
-            Connect();
+            setup();
+
+
+            this.Closed += (a, b) =>
+            {
+                metadataHandler.stopWatchingAssets();                
+            };
         }
 
-
-        public void Connect()
+        public void setup()
         {      
             var scriptDependencies = metadataHandler.PopulateDatagrids();
             metadataHandler.ResolveDependencies(scriptDependencies);
@@ -60,8 +65,6 @@ namespace Glitch2
 
             if (result == true)
             {                
-                /*var newAssetEvent = new ToolEvents.NewAssetEvent() { Asset = import.asset, AssetType = ToolEvents.AssetType.Mesh };
-                client.ProcessEvent(newAssetEvent);*/
                 AssetMetadata.createMeshMetadata(import.asset);
                 viewmodel.Meshes.Add(import.asset);
             }
@@ -128,9 +131,6 @@ namespace Glitch2
 
             if (result == MessageBoxResult.Yes)
             {  
-                /*var deleteAssetEvent = new ToolEvents.DeleteAssetEvent() { Asset = viewmodel.SelectedMesh, AssetType = ToolEvents.AssetType.Mesh };
-
-                client.ProcessEvent(deleteAssetEvent);*/
                 AssetMetadata.deleteMeshMetadata(viewmodel.SelectedMesh);
                 System.IO.File.Delete(viewmodel.SelectedMesh.ImportedFilename);
                 viewmodel.Meshes.Remove(viewmodel.SelectedMesh);
@@ -144,11 +144,8 @@ namespace Glitch2
             var result = import.ShowDialog();
 
             if (result == true)
-            {           
-                /*var newAssetEvent = new ToolEvents.NewAssetEvent() { Asset = import.asset, AssetType = ToolEvents.AssetType.Texture };
-
-                client.ProcessEvent(newAssetEvent);*/
-
+            {
+                AssetMetadata.createTextureMetadata(import.asset);
                 viewmodel.Textures.Add(import.asset);
             }
         }
@@ -220,14 +217,12 @@ namespace Glitch2
                 }
                 else
                 {
-                    /*var deleteAssetEvent = new ToolEvents.DeleteAssetEvent() { Asset = viewmodel.SelectedTexture, AssetType = ToolEvents.AssetType.Texture };
-
-                    client.ProcessEvent(deleteAssetEvent);*/
-
+                    AssetMetadata.deleteTextureMetadata(viewmodel.SelectedTexture);
                     System.IO.File.Delete(viewmodel.SelectedTexture.ImportedFilename);
                     viewmodel.Textures.Remove(viewmodel.SelectedTexture);
                 }
 
+                dependencyChecker.Close();
             }
         }
 

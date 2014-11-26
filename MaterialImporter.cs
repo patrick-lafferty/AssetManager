@@ -43,8 +43,8 @@ namespace Importers
         
     textures:
     [count - 1 byte]
-    [string textureName - x bytes]
-    [string destinationName - x bytes]
+    [texture slot - 4 bytes]
+    [string filename - x bytes]
     [real or generated - 1 byte]          is this texture an offline asset, or one generated at runtime
 
     default parameter values:
@@ -169,7 +169,7 @@ namespace Importers
 
                     foreach (var texture in asset.Textures)
                     {
-                        writer.Write(texture.ShaderResourceViewName);
+                        writer.Write(texture.TextureSlot);
                         writer.Write(texture.Source.ImportedFilename);
                         writer.Write((byte)0); //todo: NOT IMPLEMENTED YET
                     }

@@ -76,7 +76,9 @@
                                       >
                     <DataGrid.Columns>
                         <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding Dimensions}" Header="Dimensions" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding Width}" Header="Width" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding Height}" Header="Height" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding Format}" Header="Format" IsReadOnly="True"/>
                         <DataGridTextColumn Binding="{Binding Description}" Header="Description" IsReadOnly="True"/>                        
                         <DataGridTextColumn Binding="{Binding LastUpdated}" Header="Last Updated" IsReadOnly="True"/>
                         <DataGridTextColumn Binding="{Binding SourceFilename}" Header="Source Filename" IsReadOnly="True"/>

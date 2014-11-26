@@ -145,17 +145,10 @@ namespace Assets
 
     }
 
-    /*
-    Materials need to store the name of the texture source file, as well as which
-    name it gets in any shader its used in, the ShaderResourceViewName. So the Source
-    ends up in the SRVName.
-    */
     public class Texture
     {
-        public string ShaderResourceViewName { get; set; }
+        public int TextureSlot { get; set; }
 
-        //textures are stored in a separate db collection, we want mongo to ignore this property
-        //and instead just store the _id
         TextureAsset source;        
         public TextureAsset Source
         {

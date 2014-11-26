@@ -245,11 +245,11 @@ namespace Glitch2
 
             foreach(var texture in asset.Textures)
             {
-                if (texture.ShaderResourceViewName == "UNNAMED" || string.IsNullOrEmpty(texture.ShaderResourceViewName))
+                /*if (texture.ShaderResourceViewName == "UNNAMED" || string.IsNullOrEmpty(texture.ShaderResourceViewName))
                 {
                     MessageBox.Show("A texture wasn't given a name, please go back and name it");
                     return;
-                }
+                }*/
 
                 if (texture.Source == null)
                 {
@@ -391,7 +391,7 @@ namespace Glitch2
 
         private void AddTexture(object sender, RoutedEventArgs e)
         {
-            asset.Textures.Add(new Texture() { ShaderResourceViewName = "UNNAMED"});
+            asset.Textures.Add(new Texture());
         }
 
         private void RemoveSelectedTexture(object sender, RoutedEventArgs e)
