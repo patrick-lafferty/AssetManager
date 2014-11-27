@@ -81,7 +81,6 @@
                         <DataGridTextColumn Binding="{Binding Format}" Header="Format" IsReadOnly="True"/>
                         <DataGridTextColumn Binding="{Binding Description}" Header="Description" IsReadOnly="True"/>                        
                         <DataGridTextColumn Binding="{Binding LastUpdated}" Header="Last Updated" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding SourceFilename}" Header="Source Filename" IsReadOnly="True"/>
                         <DataGridTextColumn Binding="{Binding ImportedFilename}" Header="Imported Filename" IsReadOnly="True"/>
                     </DataGrid.Columns>
                     <DataGrid.ContextMenu>

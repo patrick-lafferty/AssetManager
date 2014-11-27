@@ -101,9 +101,23 @@ namespace Glitch2
                 texture.Width = metadata[1].Split('=')[1].Trim();
                 texture.Height = metadata[2].Split('=')[1].Trim();
                 texture.Format = (DXGI_FORMAT)Enum.Parse(typeof(DXGI_FORMAT), metadata[3].Split('=')[1].Trim());
-                texture.LastUpdated = metadata[4].Split('=')[1].Trim();
-                texture.SourceFilename = metadata[5].Split('=')[1].Trim();                
-                texture.ImportedFilename = metadata[6].Split('=')[1].Trim();
+                texture.ChannelMappings =
+                    metadata[4].Split('=')[1]
+                    .Split(';')                    
+                    .Select(s =>
+                    {
+                        var c = s.Split(',');
+
+                        return new Glitch2.ImportTexture.ChannelMapping()
+                        {
+                            Destination = (Glitch2.ImportTexture.Channel)Enum.Parse(typeof(Glitch2.ImportTexture.Channel), c[0]),
+                            Filename = c[1],
+                            Source = (Glitch2.ImportTexture.Channel)Enum.Parse(typeof(Glitch2.ImportTexture.Channel), c[2])
+                        };
+                    }).ToList();
+                texture.LastUpdated = metadata[5].Split('=')[1].Trim();
+                texture.SourceFilenames = metadata[6].Split('=')[1].Trim().Split(',').ToList();                
+                texture.ImportedFilename = metadata[7].Split('=')[1].Trim();
 
                 textures.Add(texture);
             }
@@ -538,10 +552,13 @@ namespace Glitch2
 
             foreach (var texture in viewmodel.Textures)
             {
-                var writeTime = System.IO.File.GetLastWriteTime(texture.SourceFilename);
+                //var writeTime = System.IO.File.GetLastWriteTime(texture.SourceFilename);
                 var lastKnownTime = DateTime.Parse(texture.LastUpdated);
 
-                if (writeTime > lastKnownTime)
+                var needsUpdate = texture.SourceFilenames.Any(s => System.IO.File.GetLastWriteTime(s) > lastKnownTime);
+
+                //if (writeTime > lastKnownTime)
+                if (needsUpdate)
                 {
                     //this asset was updated while glitch was offline, update it
                     if (assetWatcher.TryUpdateAsset(texture))

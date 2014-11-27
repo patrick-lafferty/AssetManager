@@ -129,7 +129,8 @@ namespace Assets
     DDS texture, with optionally mipmaps and compression
     */
     public class TextureAsset : Asset
-    {
+    {     
+
         string description;
         public string Description
         {
@@ -174,6 +175,8 @@ namespace Assets
             }
         }
 
+        public List<Glitch2.ImportTexture.ChannelMapping> ChannelMappings { get; set; }
+
         string lastUpdated;
         public string LastUpdated
         {
@@ -185,7 +188,7 @@ namespace Assets
             }
         }
 
-        string filename;
+        /*string filename;
         public string SourceFilename
         {
             get
@@ -197,7 +200,8 @@ namespace Assets
                 filename = value;
                 NotifyPropertyChanged("SourceFilename");
             }
-        }
+        }*/
+        public List<string> SourceFilenames { get; set; }
 
         string importedFilename;
         public string ImportedFilename

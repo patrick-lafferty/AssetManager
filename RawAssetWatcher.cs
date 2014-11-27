@@ -75,7 +75,7 @@ namespace Glitch2
                         finished = true;
                     }
                 }
-                catch (IOException ex)
+                catch (IOException)
                 {
                     System.Threading.Thread.Sleep(100);
                 }

@@ -41,12 +41,15 @@ namespace AssetManager
         static internal void createTextureMetadata(TextureAsset texture)
         {
             var metadata = new StringBuilder();
+            var mappings = texture.ChannelMappings.Aggregate("", (acc, c) => acc + c.Destination.ToString() + "," + c.Filename + "," + c.Source.ToString() + ";");
+            mappings = mappings.Remove(mappings.LastIndexOf(';'));
             metadata.AppendLine("Description= " + texture.Description)
                 .AppendLine("Width= " + texture.Width)
                 .AppendLine("Height= " + texture.Height)
                 .AppendLine("Format= " + texture.Format)
+                .AppendLine("ChannelMappings=" + mappings)
                 .AppendLine("LastUpdated= " + texture.LastUpdated)
-                .AppendLine("SourceFilename= " + texture.SourceFilename)
+                .AppendLine("SourceFilenames= " + string.Join(",", texture.SourceFilenames))
                 .AppendLine("ImportedFilename= " + texture.ImportedFilename);
 
             File.WriteAllText(MetadataPath + "Textures/" + texture.Name + ".meta", metadata.ToString());

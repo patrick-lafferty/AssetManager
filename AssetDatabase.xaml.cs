@@ -157,7 +157,7 @@ namespace Glitch2
 
             string oldName = viewmodel.SelectedTexture.Name;
             string oldImported = viewmodel.SelectedTexture.ImportedFilename;
-            string oldSource = viewmodel.SelectedTexture.SourceFilename;
+            //string oldSource = viewmodel.SelectedTexture.SourceFilename;
 
             ImportTexture import = new ImportTexture();
             import.setAsset(viewmodel.SelectedTexture);

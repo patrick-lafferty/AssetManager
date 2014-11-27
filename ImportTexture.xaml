@@ -28,35 +28,73 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition />
         </Grid.RowDefinitions>
 
         <TextBlock Text="Name"/>
         <TextBox Grid.Column="1"
-                 Text="{Binding Name}"/>
-
-        <TextBlock Text="Filename" 
+                 Text="{Binding asset.Name}"/>
+                          
+        <TextBlock Text="Channel#"
                    Grid.Row="1"/>
-        <StackPanel Grid.Row="1"
-                    Grid.Column="1">
-            <TextBox Text="{Binding SourceFilename}"/>
-            <Button Content="..." 
-                    Click="Open"/>
-        </StackPanel>
+        <ComboBox SelectedItem="{Binding ChannelCount}" 
+                  ItemsSource="{Binding AvailableChannelCounts}"
+                  Grid.Row="1" Grid.Column="1"
+                  SelectionChanged="ChannelCountChanged"/>
 
-
-        <TextBlock Text="Description" 
+        <TextBlock Text="Format"
                    Grid.Row="2"/>
+        <ComboBox SelectedItem="{Binding asset.Format}"
+                  ItemsSource="{Binding AvailableFormats}"
+                  Grid.Row="2" Grid.Column="1"
+                  />
+                   
+        <TextBlock Text="Channels"
+                   Grid.Row="3"/>
+
+        <DataGrid ItemsSource="{Binding Channels}"
+                  SelectedItem="{Binding SelectedChannel}"
+                  AutoGenerateColumns="false"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  Grid.Row="3" Grid.Column="1">
+            <DataGrid.Columns>                
+                <DataGridTextColumn Header="Destination" Binding="{Binding Destination}"/>
+                <DataGridTemplateColumn Header="Filename">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox Text="{Binding Filename, UpdateSourceTrigger=PropertyChanged}"/>
+                                <Button Content="..." Click="Open"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Source">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox SelectedItem="{Binding Source, UpdateSourceTrigger=PropertyChanged}" 
+                                      ItemsSource="{Binding AvailableChannels, RelativeSource={RelativeSource AncestorType=Window}}"  />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>                
+            </DataGrid.Columns>
+        </DataGrid>
+        
+        <TextBlock Text="Description" 
+                   Grid.Row="4"/>
         <TextBox Grid.Column="1"
-                 Grid.Row="2"
-                 Text="{Binding Description}"
+                 Grid.Row="4"
+                 Text="{Binding asset.Description}"
                  AcceptsReturn="True"/>
 
         <Button Content="Import" 
-                Grid.Row="3"
+                Grid.Row="5"
                 Click="Import"/>
         <TextBlock Grid.Column="1" 
-                   Grid.Row="3"
+                   Grid.Row="5"
                    x:Name="status"/>
         
     </Grid>

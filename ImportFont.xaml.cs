@@ -59,7 +59,7 @@ namespace Glitch2
 
         bool importInProgress = false;
 
-        private async void Import(object sender, RoutedEventArgs e)
+        private void Import(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(asset.Name)
                 || asset.FontName == null

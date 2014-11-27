@@ -80,7 +80,7 @@ namespace Glitch2
             }
             else
             {
-                asset = Textures.FirstOrDefault(t => t.SourceFilename == name);
+                asset = Textures.FirstOrDefault(t => t.SourceFilenames.Contains(name));
 
                 if (asset != null)
                 {

@@ -40,8 +40,7 @@ namespace AssetManager
             {
                 TextureAsset texture = asset as TextureAsset;
 
-                //TextureImporter.Import(texture);
-                var result = ImportTexture.import(texture.SourceFilename, texture.ImportedFilename);
+                var result = ImportTexture.import(texture.Format, texture.ChannelMappings, texture.ImportedFilename);
 
                 if (string.IsNullOrEmpty(result))
                 {
@@ -59,17 +58,13 @@ namespace AssetManager
             else if (asset is ShaderAsset)
             {
                 ShaderAsset shader = asset as ShaderAsset;
-                            
-                /*ImportShader import = new ImportShader();
-                import.asset = shader;
-                import.Import(null, null);
-                 */
+              
                 var result = ImportShader.import(shader.SourceFilename, shader.ImportedFilename);
 
                 if (string.IsNullOrEmpty(result))
                 {
                     successMessage = "Successfully updated shader: " + shader.Name;
-                    //shader.LastUpdated
+                    shader.LastUpdated = DateTime.Now.ToString();
                     AssetMetadata.createShaderMetadata(shader);
 
                     return true;
