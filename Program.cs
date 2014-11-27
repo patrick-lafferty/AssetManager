@@ -217,7 +217,22 @@ namespace ImageConverter
         public int width {get; set;}
         public int height {get; set;}
         public int pitch {get; set;}
+        public uint bitsPerPixel { get; set; }
+        public int channels { get; set; }
 	}
+
+    enum Channel
+    {
+        Unused, R, G, B, A
+    }
+
+    class ChannelMapping
+    {
+        public Channel R { get; set; }
+        public Channel G { get; set; }
+        public Channel B { get; set; }
+        public Channel A { get; set; }
+    }
 
 	class Program
 	{   
@@ -242,69 +257,246 @@ namespace ImageConverter
                 image.format = source.Format;
                 image.width = source.PixelWidth;
                 image.height = source.PixelHeight;
-                image.pitch = pitch;                
+                image.pitch = pitch;
+                image.bitsPerPixel = (uint)source.Format.BitsPerPixel;
+                image.channels = source.Format.Masks.Count;
 
                 return image;
 			}
 		}
-        
-        static int getDXGIFormat(System.Windows.Media.PixelFormat format)
+                
+        static uint getBitsPerPixel(DXGI_FORMAT format)
         {
-            //(int)DXGI_FORMAT.DXGI_FORMAT_R8_UNORM;
-            //bgr24, bgra32, rbga64
-            if (format == PixelFormats.Bgra32)
+            switch(format)
             {
-                return (int)DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_FLOAT:
+                    return 64;
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_SINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_SNORM:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_TYPELESS:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+                    return 32;
+                default:
+                    throw new Exception("unknown format");
             }
-            else if (format == PixelFormats.Bgr24)
+        }
+
+        static uint getPitch(uint bitsPerPixel)
+        {
+            return (bitsPerPixel + 7) / 8;
+        }
+
+        static Tuple<ChannelMapping, Image> findFirstImageForChannel(List<Tuple<ChannelMapping, Image>> images, Channel channel)
+        {
+            return images.First(i =>
+                i.Item1.R == channel
+                || i.Item1.G == channel
+                || i.Item1.B == channel
+                || i.Item1.A == channel);
+        }
+
+        static void copyChannelFromPixel(Image image, Channel channel, int pixelIndex, int destinationBufferStartIndex, byte[] buffer)
+        {
+            int bytesPerChannel = (int)(image.bitsPerPixel / 8 / image.channels);
+
+            int offset = 0;
+            switch(channel)
             {
-                return (int)DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+                case Channel.R:
+                    {
+                        offset = 0;
+                        break;
+                    }
+                case Channel.G:
+                    {
+                        offset = bytesPerChannel;
+                        break;
+                    }
+                case Channel.B:
+                    {
+                        offset = bytesPerChannel * 2;
+                        break;
+                    }
+                case Channel.A:
+                    {
+                        offset = bytesPerChannel * 3;
+                        break;
+                    }            
             }
-            else if (format == PixelFormats.Rgba64)
+
+            var bytesPerPixel = image.bitsPerPixel / 8;
+            for (int i = 0; i < bytesPerChannel; i++)
             {
-                return (int)DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_FLOAT;
+                buffer[destinationBufferStartIndex + i] = image.bytes[pixelIndex * bytesPerPixel + offset + i];
             }
-            else if (format == PixelFormats.Gray8)
+        }
+
+        static Channel getSourceForChannel(Channel channel, ChannelMapping mapping)
+        {
+            if (mapping.R == channel)
             {
-                return (int)DXGI_FORMAT.DXGI_FORMAT_R8_UNORM;
+                return Channel.R;
+            }
+            else if (mapping.G == channel)
+            {
+                return Channel.G;
+            }
+            else if (mapping.B == channel)
+            {
+                return Channel.B;
             }
             else
             {
-                throw new Exception("unknown format");
+                return Channel.A;
+            }
+        }
+
+        static byte[] packImages(List<Tuple<ChannelMapping, Image>> images, uint totalSize, uint totalPixels, uint bytesPerPixel)
+        {
+            byte[] buffer = new byte[totalSize];
+
+            var rChannelImage = findFirstImageForChannel(images, Channel.R);
+            var rChannelSource = getSourceForChannel(Channel.R, rChannelImage.Item1);
+            var gChannelImage = findFirstImageForChannel(images, Channel.G);
+            var gChannelSource = getSourceForChannel(Channel.G, gChannelImage.Item1);
+            var bChannelImage = findFirstImageForChannel(images, Channel.B);
+            var bChannelSource = getSourceForChannel(Channel.B, bChannelImage.Item1);
+            var aChannelImage = findFirstImageForChannel(images, Channel.A);
+            var aChannelSource = getSourceForChannel(Channel.A, aChannelImage.Item1);
+
+            var bytesPerChannel = bytesPerPixel / 4;
+            
+            for (int i = 0; i < totalPixels; i++)
+            {
+                copyChannelFromPixel(rChannelImage.Item2, rChannelSource, i, (int)(i * bytesPerPixel), buffer);
+                copyChannelFromPixel(gChannelImage.Item2, gChannelSource, i, (int)(i * bytesPerPixel + bytesPerChannel), buffer);
+                copyChannelFromPixel(bChannelImage.Item2, bChannelSource, i, (int)(i * bytesPerPixel + bytesPerChannel * 2), buffer);
+                copyChannelFromPixel(aChannelImage.Item2, aChannelSource, i, (int)(i * bytesPerPixel + bytesPerChannel * 3), buffer);
+            }
+
+            return buffer;
+        }
+
+        static int getChannels(DXGI_FORMAT format)
+        {
+            switch(format)
+            {
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_SINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_SNORM:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_TYPELESS:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+                    return 4;
+                default:
+                    throw new Exception("unknown format");
             }
         }
 
 		static int Main(string[] args)
 		{
-            if (args.Length != 2)
+            if (args.Length < 4)
             {
-	            Console.WriteLine("syntax: ImageConverter {input fullpath} {output fullpath}");
+	            Console.WriteLine("syntax: ImageConverter {(int)dxgi_format} {(source rgba),(dest rgba) input fullpath}[1-4] {output fullpath}");
                 return 1;  
             }
 
-            var filename = args[0]; //@"c:\ProjectStacks\RawAssets\Textures\Roughness\first.png";
+            //for now, width/height will use the values from the first image
+            //pitch/bitsperpixel will come dxgi_format parameter
+            DXGI_FORMAT dxgiFormat = (DXGI_FORMAT)Enum.Parse(typeof(DXGI_FORMAT), args[0]);
+            uint bitsPerPixel = getBitsPerPixel(dxgiFormat);
+            uint pitch = getPitch(bitsPerPixel);
+            int channelCount = getChannels(dxgiFormat);
+            
+            uint width = 0, height = 0;
+            var images = new List<Tuple<ChannelMapping, Image>>();
+            for (int i = 1; i < args.Length - 1; i += 2)
+            {
+                var channels = args[i];
+                var path = args[i + 1];
 
-            var image = loadImage(filename);
-			
-			var outputName = Path.GetFileNameWithoutExtension(filename);
+                Image image = null;
+                if (path == "null")
+                {
+                    image = new Image();
+                    image.bytes = new byte[bitsPerPixel / 8 / channelCount * width * height];
+                    image.bitsPerPixel = bitsPerPixel / (uint)channelCount;
+                    image.channels = 1;
+                }
+                else
+                {
+                    image = loadImage(path);
+                }
 
-			var textureType = new DirectoryInfo(filename).Parent.Name;
-            var output = args[1]; //@"C:\ProjectStacks\ImportedAssets\Textures\" + textureType + @"\" + outputName + ".dds";
+                if (i == 1)
+                {
+                    width = (uint)image.width;
+                    height = (uint)image.height;
+                }
+
+                var mapping = new ChannelMapping();
+                var split = channels.Split(',');
+                var sourceName = split[0];
+                var destinationName = split[1];
+
+                if (sourceName.Length != destinationName.Length)
+                {
+                    throw new Exception("invalid channel mapping");
+                }
+
+                for (int c = 0; c < sourceName.Length; c++)
+                {
+                    var source = (Channel)Enum.Parse(typeof(Channel), sourceName[c].ToString(), true);
+                    var destination = (Channel)Enum.Parse(typeof(Channel), destinationName[c].ToString(), true);
+
+                    switch(source)
+                    {
+                        case Channel.R:
+                            {
+                                mapping.R = destination;
+                                break;
+                            }
+                        case Channel.G:
+                            {
+                                mapping.G = destination;
+                                break;
+                            }
+                        case Channel.B:
+                            {
+                                mapping.B = destination;
+                                break;
+                            }
+                        case Channel.A:
+                            {
+                                mapping.A = destination;
+                                break;
+                            }
+                    }
+                }
+
+                images.Add(Tuple.Create(mapping, image));
+            }
+
+            uint totalTextureSize = width * height * pitch;
+            uint totalPixels = width * height;
+            var packedTexture = packImages(images, totalTextureSize, totalPixels, bitsPerPixel / 8);
 
 			const int DDS_MAGIC_NUMBER = 0x20534444;
 
 			Header header = new Header();
             header.size = 124;
 			header.flags = (uint)(HeaderFlags.CAPS | HeaderFlags.WIDTH | HeaderFlags.HEIGHT | HeaderFlags.PIXELFORMAT);
-            header.width = (uint)image.width;
-            header.height = (uint)image.height;
-            header.pitchOrLinearSize = (uint)image.pitch;
+            header.width = width;
+            header.height = height;
+            header.pitchOrLinearSize = pitch;
             
             header.pixelFormat = new PixelFormat();
             header.pixelFormat.size = 32;
             header.pixelFormat.flags = (uint)PixelFormatFlags.FOUR_CC;
             header.pixelFormat.fourCC = ('D') | ('X' << 8) | ('1' << 16) | ('0' << 24);
-            header.pixelFormat.rgbBitCount = (uint)image.format.BitsPerPixel;            
+            header.pixelFormat.rgbBitCount = bitsPerPixel;            
 
             header.caps = (uint)Caps.TEXTURE;
             header.caps2 = 0;
@@ -312,13 +504,13 @@ namespace ImageConverter
             header.caps4 = 0;
 
             HeaderDXT10 dxtHeader = new HeaderDXT10();
-            dxtHeader.dxgiFormat = getDXGIFormat(image.format); 
+            dxtHeader.dxgiFormat = (int)dxgiFormat; 
             dxtHeader.resourceDimension = (int)D3D10_RESOURCE_DIMENSION.D3D10_RESOURCE_DIMENSION_TEXTURE2D;
             dxtHeader.miscFlag = 0;
             dxtHeader.arraySize = 1;
             dxtHeader.miscFlags2 = 0;
 
-            var buffer = new byte[image.bytes.Length + 4 + 124 + 20];
+            var buffer = new byte[4 + 124 + 20 + totalTextureSize];
 
 			using (var stream = new MemoryStream(buffer))
 			{
@@ -361,10 +553,12 @@ namespace ImageConverter
                     writer.Write(dxtHeader.arraySize);
                     writer.Write(dxtHeader.miscFlags2);
 
-                    writer.Write(image.bytes);                                       
+                    //writer.Write(image.bytes);
+                    writer.Write(packedTexture);                   
 				}               
 			}
 
+            var output = args[args.Length - 1];
             File.WriteAllBytes(output, buffer);
 
             return 0;
