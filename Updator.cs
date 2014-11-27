@@ -20,19 +20,14 @@ namespace AssetManager
             {
                 MeshAsset mesh = asset as MeshAsset;
 
-                //var success = MeshImporter.Import(mesh, out error);
-                var success = true;
+                var result = ImportMesh.import(mesh.SourceFilename, mesh.ImportedFilename);
 
-                if (success)
+                if (string.IsNullOrEmpty(result))
                 {
                     successMessage = "Successfully updated mesh: " + mesh.Name;
-                    /*var updateAsset = new ToolEvents.UpdateAssetEvent()
-                    {
-                        Asset = mesh,
-                        AssetType = ToolEvents.AssetType.Mesh
-                    };
 
-                    processEvent(updateAsset);*/
+                    mesh.LastUpdated = DateTime.Now.ToString();
+                    AssetMetadata.createMeshMetadata(mesh);
 
                     return true;
                 }
@@ -46,87 +41,42 @@ namespace AssetManager
                 TextureAsset texture = asset as TextureAsset;
 
                 //TextureImporter.Import(texture);
+                var result = ImportTexture.import(texture.SourceFilename, texture.ImportedFilename);
 
-                successMessage = "Successfully updated texture: " + texture.Name;
-
-                /*var updateAsset = new ToolEvents.UpdateAssetEvent()
+                if (string.IsNullOrEmpty(result))
                 {
-                    Asset = texture,
-                    AssetType = ToolEvents.AssetType.Texture
-                };
+                    successMessage = "Successfully updated texture: " + texture.Name;
+                    texture.LastUpdated = DateTime.Now.ToString();
+                    AssetMetadata.createTextureMetadata(texture);
 
-                processEvent(updateAsset);*/
-
-                return true;
-            }
-            /*else if (asset is ScriptAsset)
-            {
-                ScriptAsset script = asset as ScriptAsset;
-
-                var result = ScriptImporter.Import(script);                
-
-                if (result.Errors.HasErrors)
-                {
-                    var builder = new StringBuilder();
-
-                    builder.AppendLine("ERROR: Updating script: " + script.Name + " failed!");
-
-                    foreach (var compilerError in result.Errors)
-                    {
-                        builder.AppendLine(compilerError.ToString());
-                    }
-
-                    error = builder.ToString();
+                    return true;
                 }
                 else
                 {
-                    successMessage = "Successfully updated script: " + script.Name;
-
-                    var updateAsset = new ToolEvents.UpdateAssetEvent()
-                    {
-                        Asset = script,
-                        AssetType = ToolEvents.AssetType.Script
-                    };
-
-                    processEvent(updateAsset);
-                    return true;
+                    error = "ERROR: Updating texture: " + texture.Name + " failed!" + Environment.NewLine + result;
                 }
-            }*/
+            }            
             else if (asset is ShaderAsset)
             {
                 ShaderAsset shader = asset as ShaderAsset;
-
-                /*var result = ShaderImporter.Import(shader);
-
-                if (result.hasError())
-                {
-                    error = "ERROR: Updating shader: " + shader.Name + " failed!" + Environment.NewLine + result.Error;
-                }
-                else
-                {
-                    successMessage = "Successfully updated shader: " + shader.Name;
-
-                    /*var updateAsset = new ToolEvents.UpdateAssetEvent()
-                    {
-                        Asset = shader,
-                        AssetType = ToolEvents.AssetType.Shader
-                    };
-
-                    processEvent(updateAsset);*/
-                    //return true;
-                //}
-                ImportShader import = new ImportShader();
+                            
+                /*ImportShader import = new ImportShader();
                 import.asset = shader;
                 import.Import(null, null);
+                 */
+                var result = ImportShader.import(shader.SourceFilename, shader.ImportedFilename);
 
-                if (string.IsNullOrEmpty(import.Error))
+                if (string.IsNullOrEmpty(result))
                 {
                     successMessage = "Successfully updated shader: " + shader.Name;
+                    //shader.LastUpdated
+                    AssetMetadata.createShaderMetadata(shader);
+
                     return true;
                 }
                 else
                 {
-                    error = "ERROR: Updating shader: " + shader.Name + " failed!" + Environment.NewLine + import.Error;
+                    error = "ERROR: Updating shader: " + shader.Name + " failed!" + Environment.NewLine + result;
                 }
             }
             else if (asset is MaterialAsset)

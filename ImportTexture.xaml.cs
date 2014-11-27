@@ -45,7 +45,7 @@ namespace Glitch2
             return BitConverter.ToInt32(bytes, 0);
         }
 
-        string import(string input, string output)
+        internal static string import(string input, string output)
         {
             var process = new Process();
             process.StartInfo.FileName = @"C:\ProjectStacks\Tools\Debug\ImageConverter.exe";

@@ -39,11 +39,12 @@ namespace Glitch2
             this.DataContext = asset;
         }
 
-        string import(string source)
+        internal static string import(string input, string output)
         {
             var process = new Process();
             process.StartInfo.FileName = @"C:\ProjectStacks\Tools\Debug\ShaderImporter.exe";            
-            process.StartInfo.Arguments = asset.SourceFilename + " " + (@"C:\ProjectStacks\ImportedAssets\Shaders\" + Path.GetFileNameWithoutExtension(asset.SourceFilename));
+            //process.StartInfo.Arguments = asset.SourceFilename + " " + (@"C:\ProjectStacks\ImportedAssets\Shaders\" + Path.GetFileNameWithoutExtension(asset.SourceFilename));
+            process.StartInfo.Arguments = input + " " + output;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardError = true;
             process.Start();
@@ -67,7 +68,7 @@ namespace Glitch2
             //string shadersPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\Assets\Shaders\"));
             string shadersPath = @"C:\ProjectStacks\ImportedAssets\Shaders\";
             //var outputName = System.IO.Path.Combine(shadersPath, System.IO.Path.ChangeExtension(asset.Name, ".csg"));
-            var outputName = /*shadersPath + */Path.GetFileNameWithoutExtension(asset.Name);
+            var outputName = shadersPath + Path.GetFileNameWithoutExtension(asset.Name);
 
             if (!Directory.Exists(shadersPath))
             {               
@@ -82,7 +83,7 @@ namespace Glitch2
                 return;
             }
 
-            var result = import(asset.ImportedFilename); //ShaderImporter.Import(asset);
+            var result = import(asset.SourceFilename, asset.ImportedFilename); //ShaderImporter.Import(asset);
 
             if (!string.IsNullOrEmpty(result))
             {

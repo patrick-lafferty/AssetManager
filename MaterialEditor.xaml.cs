@@ -245,12 +245,6 @@ namespace Glitch2
 
             foreach(var texture in asset.Textures)
             {
-                /*if (texture.ShaderResourceViewName == "UNNAMED" || string.IsNullOrEmpty(texture.ShaderResourceViewName))
-                {
-                    MessageBox.Show("A texture wasn't given a name, please go back and name it");
-                    return;
-                }*/
-
                 if (texture.Source == null)
                 {
                     MessageBox.Show("Must specify texture source, its currently blank");
@@ -267,7 +261,6 @@ namespace Glitch2
                 }
             }
 
-            //var materialPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\Assets\Materials\");
             var materialPath = @"C:\ProjectStacks\ImportedAssets\Materials\";
             var outputName = System.IO.Path.Combine(materialPath, System.IO.Path.ChangeExtension(asset.Name, "mat"));
 
@@ -429,6 +422,6 @@ namespace Glitch2
                 asset.BlendState.RenderTargets.Remove(SelectedRenderTarget);
                 SelectedRenderTarget = null;
             }
-        }                     
+        }
     }
 }

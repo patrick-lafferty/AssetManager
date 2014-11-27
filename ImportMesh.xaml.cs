@@ -44,11 +44,12 @@ namespace Glitch2
             this.DataContext = asset;
         }
 
-        string import(string source)
+        internal static string import(string input, string output)
         {
             var process = new Process();
             process.StartInfo.FileName = @"C:\ProjectStacks\Tools\Debug\MeshImporter.exe";
-            process.StartInfo.Arguments = asset.SourceFilename + " " + (@"C:\ProjectStacks\ImportedAssets\Meshes\" + Path.GetFileNameWithoutExtension(asset.SourceFilename)) + ".mesh";
+            //process.StartInfo.Arguments = asset.SourceFilename + " " + (@"C:\ProjectStacks\ImportedAssets\Meshes\" + Path.GetFileNameWithoutExtension(asset.SourceFilename)) + ".mesh";
+            process.StartInfo.Arguments = input + " " + output;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardError = true;
             process.Start();
@@ -87,7 +88,7 @@ namespace Glitch2
                 return;
             }
 
-            var result = import(asset.ImportedFilename); 
+            var result = import(asset.SourceFilename, asset.ImportedFilename); 
 
             if (!string.IsNullOrEmpty(result))
             {

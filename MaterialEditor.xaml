@@ -219,7 +219,7 @@
 
                 <TextBlock Text="Textures"/>
                 
-                <DataGrid ItemsSource="{Binding asset.Textures, Mode=TwoWay}" 
+                <DataGrid ItemsSource="{Binding asset.Textures}" 
                       AutoGenerateColumns="False"
                       CanUserAddRows="False"
                       CanUserDeleteRows="False"
@@ -232,12 +232,13 @@
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="SRV Name" Binding="{Binding ShaderResourceViewName, Mode=TwoWay}" />
+                        <DataGridTextColumn Header="Slot" Binding="{Binding TextureSlot}" />
 
                         <DataGridTemplateColumn Header="Source">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <ComboBox ItemsSource="{Binding AvailableTextures, RelativeSource={RelativeSource AncestorType=Window}}"  SelectedItem="{Binding Source}" DisplayMemberPath="Name"/>
+                                    <ComboBox ItemsSource="{Binding AvailableTextures, RelativeSource={RelativeSource AncestorType=Window}}"  
+                                              SelectedItem="{Binding Source, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>

@@ -549,6 +549,7 @@ namespace Glitch2
                 {
                     /*var updateAssetEvent = new ToolEvents.UpdateAssetEvent { Asset = editor.asset, AssetType = ToolEvents.AssetType.Material };
                     client.ProcessEvent(updateAssetEvent);*/
+                    AssetMetadata.createMaterialMetadata(viewmodel.SelectedMaterial);
                 }
             }
         }

@@ -119,28 +119,32 @@ namespace Importers
                         writeString(writer, asset.VertexShader.ImportedFilename + ".cvs");
                         writeString(writer, asset.PixelShader.ImportedFilename + ".cps");
 
-                        //writer.Write(asset.VertexShader.ImportedFilename);
-                        //writer.Write(asset.PixelShader.ImportedFilename);
                     }
                     else if (asset.ShaderCombination == ShaderCombination.VertexGeometryPixel)
                     {
                         writer.Write((int)1);
-                        writer.Write(asset.VertexShader.ImportedFilename);
-                        writer.Write(asset.GeometryShader.ImportedFilename);
-                        writer.Write(asset.PixelShader.ImportedFilename);
+                        //writer.Write(asset.VertexShader.ImportedFilename);
+                        //writer.Write(asset.GeometryShader.ImportedFilename);
+                        //writer.Write(asset.PixelShader.ImportedFilename);
+                        writeString(writer, asset.VertexShader.ImportedFilename + ".cvs");
+                        writeString(writer, asset.GeometryShader.ImportedFilename + ".cgs");
+                        writeString(writer, asset.PixelShader.ImportedFilename + ".cps");
                     }
                     else if (asset.ShaderCombination == ShaderCombination.VertexGeometry)
                     {
                         writer.Write((int)2);
-                        writer.Write(asset.VertexShader.ImportedFilename);
-                        writer.Write(asset.GeometryShader.ImportedFilename);                        
+                        //writer.Write(asset.VertexShader.ImportedFilename);
+                        //writer.Write(asset.GeometryShader.ImportedFilename);                        
+                        writeString(writer, asset.VertexShader.ImportedFilename + ".cvs");
+                        writeString(writer, asset.GeometryShader.ImportedFilename + ".cgs");
                     }
 
                     writer.Write((int)asset.Samplers.Count);
 
                     foreach (var sampler in asset.Samplers)
                     {
-                        writer.Write(sampler.Name);
+                        //writer.Write(sampler.Name);
+                        writeString(writer, sampler.Name);
                         writer.Write((int)sampler.Filter);
                         writer.Write((int)sampler.AddressU);
                         writer.Write((int)sampler.AddressV);
@@ -165,25 +169,28 @@ namespace Importers
                     writer.Write((int)asset.DepthStencilState.DepthWriteMask);
                     writer.Write((int)asset.DepthStencilState.DepthFunc);
 
-                    writer.Write((byte)asset.Textures.Count);
+                    writer.Write((int)asset.Textures.Count);
 
                     foreach (var texture in asset.Textures)
                     {
                         writer.Write(texture.TextureSlot);
-                        writer.Write(texture.Source.ImportedFilename);
+                        //writer.Write(texture.Source.ImportedFilename);
+                        writeString(writer, texture.Source.ImportedFilename);
                         writer.Write((byte)0); //todo: NOT IMPLEMENTED YET
                     }
 
-                    writer.Write((byte)asset.ParameterGroups.Count);
+                    writer.Write((int)asset.ParameterGroups.Count);
 
                     foreach (var group in asset.ParameterGroups)
                     {
-                        writer.Write(group.Name);
+                        //writer.Write(group.Name);
+                        writeString(writer, group.Name);
                         writer.Write((byte)group.Parameters.Count);
 
                         foreach (var parameter in group.Parameters)
                         {
-                            writer.Write(parameter.Name);
+                            //writer.Write(parameter.Name);
+                            writeString(writer, parameter.Name);
                             writer.Write((byte)parameter.PodType);
                             writer.Write((byte)parameter.ParameterType);
                             parameter.WriteoutValue(writer);
