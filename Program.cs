@@ -45,10 +45,10 @@ namespace ImageConverter
         public uint flags;
         public uint fourCC;
         public uint rgbBitCount;
-        public uint rBitMask;
-		public uint gBitMask;
-		public uint bBitMask;
-		public uint aBitMask;
+        public uint rBitMask = 0;
+		public uint gBitMask = 0;
+		public uint bBitMask = 0;
+		public uint aBitMask = 0;
 	};
 
 	//http://msdn.microsoft.com/en-us/library/windows/desktop/bb943982(v=vs.85).aspx
@@ -59,15 +59,15 @@ namespace ImageConverter
         public uint height;
         public uint width;
         public uint pitchOrLinearSize;
-        public uint depth;
-		public uint mipMapCount;
-		public uint reserved1; //write 11 uints
+        public uint depth = 0;
+		public uint mipMapCount = 0;
+		public uint reserved1 = 0; //write 11 uints
 		public PixelFormat pixelFormat;
 		public uint caps;
         public uint caps2;
         public uint caps3;
         public uint caps4;
-        public uint reserved2;
+        public uint reserved2 = 0;
 	}
 
     //copied from http://msdn.microsoft.com/en-us/library/windows/desktop/bb173059(v=vs.85).aspx
@@ -270,6 +270,11 @@ namespace ImageConverter
             switch(format)
             {
                 case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_FLOAT:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_SINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_SNORM:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_TYPELESS:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_UINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_UNORM:
                     return 64;
                 case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_SINT:
                 case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_SNORM:
@@ -383,18 +388,57 @@ namespace ImageConverter
         {
             switch(format)
             {
+                case DXGI_FORMAT.DXGI_FORMAT_R8_SINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R8_SNORM:
+                case DXGI_FORMAT.DXGI_FORMAT_R8_TYPELESS:
+                case DXGI_FORMAT.DXGI_FORMAT_R8_UINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R8_UNORM:
+                case DXGI_FORMAT.DXGI_FORMAT_R16_FLOAT:
+                case DXGI_FORMAT.DXGI_FORMAT_R16_SINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R16_SNORM:
+                case DXGI_FORMAT.DXGI_FORMAT_R16_TYPELESS:
+                case DXGI_FORMAT.DXGI_FORMAT_R16_UINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R16_UNORM:
+                case DXGI_FORMAT.DXGI_FORMAT_R32_FLOAT:
+                case DXGI_FORMAT.DXGI_FORMAT_R32_SINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R32_TYPELESS:
+                case DXGI_FORMAT.DXGI_FORMAT_R32_UINT:
+                    return 1;
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8_SINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8_SNORM:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8_TYPELESS:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8_UINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8_UNORM:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16_FLOAT:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16_SINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16_SNORM:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16_TYPELESS:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16_UINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16_UNORM:
+                    return 2;
                 case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_SINT:
                 case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_SNORM:
                 case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_TYPELESS:
                 case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UINT:
                 case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM:
                 case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_FLOAT:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_SINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_SNORM:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_TYPELESS:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_UINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R16G16B16A16_UNORM:
+                case DXGI_FORMAT.DXGI_FORMAT_R32G32B32A32_FLOAT:
+                case DXGI_FORMAT.DXGI_FORMAT_R32G32B32A32_SINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R32G32B32A32_TYPELESS:
+                case DXGI_FORMAT.DXGI_FORMAT_R32G32B32A32_UINT:
                     return 4;
                 default:
                     throw new Exception("unknown format");
             }
         }
 
+        //TODO: generate mipmaps
 		static int Main(string[] args)
 		{
             if (args.Length < 4)
@@ -553,7 +597,6 @@ namespace ImageConverter
                     writer.Write(dxtHeader.arraySize);
                     writer.Write(dxtHeader.miscFlags2);
 
-                    //writer.Write(image.bytes);
                     writer.Write(packedTexture);                   
 				}               
 			}
