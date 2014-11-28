@@ -283,6 +283,12 @@ namespace ImageConverter
                 case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM:
                 case DXGI_FORMAT.DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
                     return 32;
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8_SINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8_SNORM:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8_TYPELESS:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8_UINT:
+                case DXGI_FORMAT.DXGI_FORMAT_R8G8_UNORM:
+                    return 16;
                 default:
                     throw new Exception("unknown format");
             }
@@ -302,40 +308,103 @@ namespace ImageConverter
                 || i.Item1.A == channel);
         }
 
-        static void copyChannelFromPixel(Image image, Channel channel, int pixelIndex, int destinationBufferStartIndex, byte[] buffer)
+        static void copyChannelFromPixel(Image image, Channel channel, int pixelIndex, int destinationBufferStartIndex, byte[] buffer, int channelOffset)
         {
-            int bytesPerChannel = (int)(image.bitsPerPixel / 8 / image.channels);
+            /*int bytesPerChannel = (int)(image.bitsPerPixel / 8 / image.channels);
 
             int offset = 0;
             switch(channel)
             {
                 case Channel.R:
                     {
-                        offset = 0;
+                        offset = bytesPerChannel * (image.channels - 1);
                         break;
                     }
                 case Channel.G:
                     {
-                        offset = bytesPerChannel;
+                        offset = bytesPerChannel * (image.channels - 2);
                         break;
                     }
                 case Channel.B:
                     {
-                        offset = bytesPerChannel * 2;
+                        offset = bytesPerChannel * (image.channels - 3);
                         break;
                     }
                 case Channel.A:
                     {
-                        offset = bytesPerChannel * 3;
+                        offset = bytesPerChannel * (image.channels - 4);
                         break;
                     }            
-            }
-
+            }*/
+            int bytesPerChannel = (int)(image.bitsPerPixel / 8 / image.channels);
             var bytesPerPixel = image.bitsPerPixel / 8;
             for (int i = 0; i < bytesPerChannel; i++)
             {
-                buffer[destinationBufferStartIndex + i] = image.bytes[pixelIndex * bytesPerPixel + offset + i];
+                buffer[destinationBufferStartIndex + i /*(bytesPerChannel - i - 1)*/] = image.bytes[pixelIndex * bytesPerPixel + channelOffset + i];
             }
+        }
+
+        static int calcChannelOffset(Image image, Channel channel)
+        {
+            int bytesPerChannel = (int)(image.bitsPerPixel / 8 / image.channels);
+
+            int offset = 0;
+
+            if (image.format == System.Windows.Media.PixelFormats.Bgra32)
+            {
+                switch (channel)
+                {
+                    case Channel.R:
+                        {
+                            offset = bytesPerChannel * (image.channels - 2);
+                            break;
+                        }
+                    case Channel.G:
+                        {
+                            offset = bytesPerChannel * (image.channels - 3);
+                            break;
+                        }
+                    case Channel.B:
+                        {
+                            offset = bytesPerChannel * (image.channels - 4);
+                            break;
+                        }
+                    case Channel.A:
+                        {
+                            offset = bytesPerChannel * (image.channels - 1);
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                //???
+                switch (channel)
+                {
+                    case Channel.R:
+                        {
+                            offset = bytesPerChannel * (image.channels - 1);
+                            break;
+                        }
+                    case Channel.G:
+                        {
+                            offset = bytesPerChannel * (image.channels - 2);
+                            break;
+                        }
+                    case Channel.B:
+                        {
+                            offset = bytesPerChannel * (image.channels - 3);
+                            break;
+                        }
+                    case Channel.A:
+                        {
+                            offset = bytesPerChannel * (image.channels - 4);
+                            break;
+                        }
+                }
+            }
+
+            return offset;
         }
 
         static Channel getSourceForChannel(Channel channel, ChannelMapping mapping)
@@ -358,27 +427,63 @@ namespace ImageConverter
             }
         }
 
-        static byte[] packImages(List<Tuple<ChannelMapping, Image>> images, uint totalSize, uint totalPixels, uint bytesPerPixel)
+        static List<Tuple<Image, Channel>> getChannelSources(List<Tuple<ChannelMapping, Image>> images, int channelCount)
         {
-            byte[] buffer = new byte[totalSize];
+            var list = new List<Tuple<Image, Channel>>();
 
             var rChannelImage = findFirstImageForChannel(images, Channel.R);
             var rChannelSource = getSourceForChannel(Channel.R, rChannelImage.Item1);
-            var gChannelImage = findFirstImageForChannel(images, Channel.G);
-            var gChannelSource = getSourceForChannel(Channel.G, gChannelImage.Item1);
-            var bChannelImage = findFirstImageForChannel(images, Channel.B);
-            var bChannelSource = getSourceForChannel(Channel.B, bChannelImage.Item1);
-            var aChannelImage = findFirstImageForChannel(images, Channel.A);
-            var aChannelSource = getSourceForChannel(Channel.A, aChannelImage.Item1);
 
-            var bytesPerChannel = bytesPerPixel / 4;
-            
-            for (int i = 0; i < totalPixels; i++)
+            list.Add(Tuple.Create(rChannelImage.Item2, rChannelSource));
+
+            if (channelCount > 1)
             {
-                copyChannelFromPixel(rChannelImage.Item2, rChannelSource, i, (int)(i * bytesPerPixel), buffer);
-                copyChannelFromPixel(gChannelImage.Item2, gChannelSource, i, (int)(i * bytesPerPixel + bytesPerChannel), buffer);
-                copyChannelFromPixel(bChannelImage.Item2, bChannelSource, i, (int)(i * bytesPerPixel + bytesPerChannel * 2), buffer);
-                copyChannelFromPixel(aChannelImage.Item2, aChannelSource, i, (int)(i * bytesPerPixel + bytesPerChannel * 3), buffer);
+                var gChannelImage = findFirstImageForChannel(images, Channel.G);
+                var gChannelSource = getSourceForChannel(Channel.G, gChannelImage.Item1);
+
+                list.Add(Tuple.Create(gChannelImage.Item2, gChannelSource));
+
+                if (channelCount > 2)
+                {
+                    var bChannelImage = findFirstImageForChannel(images, Channel.B);
+                    var bChannelSource = getSourceForChannel(Channel.B, bChannelImage.Item1);
+
+                    list.Add(Tuple.Create(bChannelImage.Item2, bChannelSource));
+
+                    if (channelCount > 3)
+                    {
+                        var aChannelImage = findFirstImageForChannel(images, Channel.A);
+                        var aChannelSource = getSourceForChannel(Channel.A, aChannelImage.Item1);
+
+                        list.Add(Tuple.Create(aChannelImage.Item2, aChannelSource));
+                    }
+                }
+            }
+
+            return list;
+        }               
+
+        static byte[] packImages(List<Tuple<ChannelMapping, Image>> images, uint totalSize, uint totalPixels, uint bytesPerPixel, int channelCount)
+        {
+            byte[] buffer = new byte[totalSize];
+
+            var channelSources = getChannelSources(images, channelCount);
+            var channelOffsets = channelSources.Select(c => calcChannelOffset(c.Item1, c.Item2)).ToList();
+            var bytesPerChannel = bytesPerPixel / channelCount;
+
+            for (int i = 0; i < totalPixels; i++)
+            {            
+                //for(int j = channelSources.Count - 1; j >= 0; j--)
+                for (int j = 0; j < channelSources.Count; j++)
+                {
+                    //copyChannelFromPixel(channelSources[j].Item1, channelSources[j].Item2, i, (int)(i * bytesPerPixel + bytesPerChannel * (channelSources.Count - j - 1)), buffer);
+                    copyChannelFromPixel(channelSources[j].Item1, channelSources[j].Item2, i, (int)(i * bytesPerPixel + bytesPerChannel * j), buffer, channelOffsets[j]);
+                }
+
+                //0 01111 0000000000
+                //00111100 00000000
+                //buffer[i * bytesPerChannel + 1] = Convert.ToByte("00111100", 2);
+                //buffer[i * bytesPerChannel] = 0;
             }
 
             return buffer;
@@ -525,7 +630,7 @@ namespace ImageConverter
 
             uint totalTextureSize = width * height * pitch;
             uint totalPixels = width * height;
-            var packedTexture = packImages(images, totalTextureSize, totalPixels, bitsPerPixel / 8);
+            var packedTexture = packImages(images, totalTextureSize, totalPixels, bitsPerPixel / 8, channelCount);
 
 			const int DDS_MAGIC_NUMBER = 0x20534444;
 
