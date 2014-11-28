@@ -116,8 +116,8 @@ namespace Importers
                     {
                         writer.Write((int)0);
 
-                        writeString(writer, asset.VertexShader.ImportedFilename + ".cvs");
-                        writeString(writer, asset.PixelShader.ImportedFilename + ".cps");
+                        writeString(writer, Path.GetFileName(asset.VertexShader.ImportedFilename) + ".cvs");
+                        writeString(writer, Path.GetFileName(asset.PixelShader.ImportedFilename) + ".cps");
 
                     }
                     else if (asset.ShaderCombination == ShaderCombination.VertexGeometryPixel)
