@@ -1,0 +1,32 @@
+﻿<Window x:Class="AssetManager.BaseMaterialOnStateGroup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="BaseMaterialOnStateGroup" Height="300" Width="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Text="Which stategroup should this material be based off of?"/>
+        
+        <ListBox ItemsSource="{Binding AvailableStateGroups}"
+                 DisplayMemberPath="Name"
+                 SelectedItem="{Binding SelectedStateGroup}"
+                 Grid.Row="1"/>
+        
+        <Button Content="Create material for this state group" 
+                Click="CreateMaterial"
+                Grid.Row="2"
+                />
+        
+        <Button Content="Cancel"
+                Click="Cancel"
+                Grid.Row="3"
+                Margin="100,10,100,10"
+                />
+        
+    </Grid>
+</Window>

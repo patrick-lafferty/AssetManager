@@ -11,7 +11,6 @@ namespace Glitch2
 {
     internal class MetadataHandler
     {
-        //string metadataPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\Assets\Metadata\"));
         string metadataPath = @"C:\ProjectStacks\RawAssets\Metadata\";
 
         RawAssetWatcher assetWatcher;
@@ -251,32 +250,9 @@ namespace Glitch2
                 material.Name = System.IO.Path.GetFileNameWithoutExtension(filename);
                 material.Description = metadata[0].Split('=')[1].Trim();
                 material.LastUpdated = metadata[1].Split('=')[1].Trim();
-                material.VertexShaderId = metadata[2].Split('=')[1].Trim();
-                material.GeometryShaderId = metadata[3].Split('=')[1].Trim();
-                material.PixelShaderId = metadata[4].Split('=')[1].Trim();
-                material.ShaderCombination = (ShaderCombination)Enum.Parse(typeof(ShaderCombination), metadata[5].Split('=')[1].Trim());
-                material.ImportedFilename = metadata[6].Split('=')[1].Trim();
+                material.ImportedFilename = metadata[2].Split('=')[1].Trim();
 
-                var samplerLine = metadata[7].Split('=')[1].Trim();
-                var samplerConfigs = samplerLine.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
-                
-                foreach(var config in samplerConfigs)
-                {
-                    var data = config.Split(',');
-                    var sampler = new Sampler()
-                    {
-                        Name = data[0].Trim(),
-                        Filter = (Filter)Enum.Parse(typeof(Filter), data[1].Trim()),
-                        AddressU = (TextureAddressMode)Enum.Parse(typeof(TextureAddressMode), data[2].Trim()),
-                        AddressV = (TextureAddressMode)Enum.Parse(typeof(TextureAddressMode), data[3].Trim()),
-                        AddressW = (TextureAddressMode)Enum.Parse(typeof(TextureAddressMode), data[4].Trim())
-                    };
-
-                    material.Samplers.Add(sampler);
-                    
-                }
-
-                var textureLine = metadata[8].Split('=')[1].Trim();
+                var textureLine = metadata[3].Split('=')[1].Trim();
                 var textureConfigs = textureLine.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach(var config in textureConfigs)
@@ -284,37 +260,14 @@ namespace Glitch2
                     var data = config.Split(',');
                     var texture = new Texture()
                     {
-                        TextureSlot = Int32.Parse(data[0].Trim()),
+                        Binding = data[0].Trim(),
                         SourceId = data[1].Trim()
                     };
 
                     material.Textures.Add(texture);
-                }
+                }                
 
-                var blendStateLine = metadata[9].Split('=')[1].Trim();
-                var blendConfigs = blendStateLine.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-
-                foreach(var config in blendConfigs)
-                {
-                    var data = config.Split(',');
-
-                    var renderTarget = new RenderTarget()
-                    {
-                        Index = int.Parse(data[0].Trim()),
-                        BlendEnabled = bool.Parse(data[1].Trim()),
-                        BlendOperation = (BlendOperation)Enum.Parse(typeof(BlendOperation), data[2].Trim()),
-                        BlendOperationAlpha = (BlendOperation)Enum.Parse(typeof(BlendOperation), data[3].Trim()),
-                        SourceBlend = (BlendOption)Enum.Parse(typeof(BlendOption), data[4].Trim()),
-                        DestinationBlend = (BlendOption)Enum.Parse(typeof(BlendOption), data[5].Trim()),
-                        SourceBlendAlpha = (BlendOption)Enum.Parse(typeof(BlendOption), data[6].Trim()),
-                        DestinationBlendAlpha = (BlendOption)Enum.Parse(typeof(BlendOption), data[7].Trim()),
-                        RenderTargetWriteMask = (WriteMask)Enum.Parse(typeof(WriteMask), data[8].Trim())
-                    };
-
-                    material.BlendState.RenderTargets.Add(renderTarget);
-                }
-
-                for (int i = 10; i < metadata.Length; i++)
+                for (int i = 4; i < metadata.Length; i++)
                 {
                     var parameterGroupLine = metadata[i].Split('=')[1].Trim();
                     var groupConfigs = parameterGroupLine.Split('#');
@@ -449,6 +402,93 @@ namespace Glitch2
             return materials;
         }
 
+        List<StateGroupAsset> loadStateGroups()
+        {
+            var stateGroups = new List<StateGroupAsset>();
+
+            if (!Directory.Exists(metadataPath + "StateGroups"))
+            {
+                Directory.CreateDirectory(metadataPath + "StateGroups");
+            }
+
+            foreach (var filename in Directory.EnumerateFiles(metadataPath + "StateGroups"))
+            {
+                var metadata = File.ReadAllLines(filename);
+
+                var stateGroup = new StateGroupAsset();
+
+                stateGroup.Name = System.IO.Path.GetFileNameWithoutExtension(filename);
+                stateGroup.Description = metadata[0].Split('=')[1].Trim();
+                stateGroup.LastUpdated = metadata[1].Split('=')[1].Trim();
+                stateGroup.VertexShaderId = metadata[2].Split('=')[1].Trim();
+                stateGroup.GeometryShaderId = metadata[3].Split('=')[1].Trim();
+                stateGroup.PixelShaderId = metadata[4].Split('=')[1].Trim();
+                stateGroup.ShaderCombination = (ShaderCombination)Enum.Parse(typeof(ShaderCombination), metadata[5].Split('=')[1].Trim());
+                stateGroup.ImportedFilename = metadata[6].Split('=')[1].Trim();
+
+                var samplerLine = metadata[7].Split('=')[1].Trim();
+                var samplerConfigs = samplerLine.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var config in samplerConfigs)
+                {
+                    var data = config.Split(',');
+                    var sampler = new Sampler()
+                    {
+                        Name = data[0].Trim(),
+                        Filter = (Filter)Enum.Parse(typeof(Filter), data[1].Trim()),
+                        AddressU = (TextureAddressMode)Enum.Parse(typeof(TextureAddressMode), data[2].Trim()),
+                        AddressV = (TextureAddressMode)Enum.Parse(typeof(TextureAddressMode), data[3].Trim()),
+                        AddressW = (TextureAddressMode)Enum.Parse(typeof(TextureAddressMode), data[4].Trim())
+                    };
+
+                    stateGroup.Samplers.Add(sampler);
+
+                }
+
+                var textureLine = metadata[8].Split('=')[1].Trim();
+                var textureConfigs = textureLine.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var config in textureConfigs)
+                {
+                    var data = config.Split(',');
+                    var texture = new TextureBinding()
+                    {
+                        Slot = Int32.Parse(data[0].Trim()),
+                        Binding = data[1].Trim()
+                    };
+
+                    stateGroup.TextureBindings.Add(texture);
+                }
+
+                var blendStateLine = metadata[9].Split('=')[1].Trim();
+                var blendConfigs = blendStateLine.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var config in blendConfigs)
+                {
+                    var data = config.Split(',');
+
+                    var renderTarget = new RenderTarget()
+                    {
+                        Index = int.Parse(data[0].Trim()),
+                        BlendEnabled = bool.Parse(data[1].Trim()),
+                        BlendOperation = (BlendOperation)Enum.Parse(typeof(BlendOperation), data[2].Trim()),
+                        BlendOperationAlpha = (BlendOperation)Enum.Parse(typeof(BlendOperation), data[3].Trim()),
+                        SourceBlend = (BlendOption)Enum.Parse(typeof(BlendOption), data[4].Trim()),
+                        DestinationBlend = (BlendOption)Enum.Parse(typeof(BlendOption), data[5].Trim()),
+                        SourceBlendAlpha = (BlendOption)Enum.Parse(typeof(BlendOption), data[6].Trim()),
+                        DestinationBlendAlpha = (BlendOption)Enum.Parse(typeof(BlendOption), data[7].Trim()),
+                        RenderTargetWriteMask = (WriteMask)Enum.Parse(typeof(WriteMask), data[8].Trim())
+                    };
+
+                    stateGroup.BlendState.RenderTargets.Add(renderTarget);
+                }
+                
+                stateGroups.Add(stateGroup);
+            }
+
+            return stateGroups;
+        }
+
         List<FontAsset> loadFonts()
         {
             var fonts = new List<FontAsset>();
@@ -520,6 +560,8 @@ namespace Glitch2
             loadShaders().ForEach(shader => viewmodel.Shaders.Add(shader));
 
             loadMaterials().ForEach(material => viewmodel.Materials.Add(material));
+
+            loadStateGroups().ForEach(stateGroup => viewmodel.StateGroups.Add(stateGroup));
 
             loadFonts().ForEach(font => viewmodel.Fonts.Add(font));
 
@@ -627,12 +669,12 @@ namespace Glitch2
             else if (asset is ShaderAsset)
             {
                 var shader = asset as ShaderAsset;
-                var materialsUsingThis = viewmodel.Materials.Where(
+                var stateGroupsUsingThis = viewmodel.StateGroups.Where(
                            m => m.VertexShader == shader
                                || m.GeometryShader == shader
                                || m.PixelShader == shader);
 
-                foreach (var material in materialsUsingThis)
+                foreach (var material in stateGroupsUsingThis)
                 {
                     /*var update = new ToolEvents.UpdateAssetEvent() { Asset = material, AssetType = ToolEvents.AssetType.Material };
                     client.ProcessEvent(update);*/
@@ -660,38 +702,41 @@ namespace Glitch2
         */
         internal void ResolveDependencies(Dictionary<ScriptAsset, string[]> scriptDependencies)
         {
-            foreach (var material in viewmodel.Materials)
+            foreach (var stateGroup in viewmodel.StateGroups)
             {
-                if (!string.IsNullOrEmpty(material.VertexShaderId))
+                if (!string.IsNullOrEmpty(stateGroup.VertexShaderId))
                 {
-                    var vertexShader = viewmodel.Shaders.First(s => s.Name == material.VertexShaderId);
+                    var vertexShader = viewmodel.Shaders.First(s => s.Name == stateGroup.VertexShaderId);
 
-                    Debug.Assert(vertexShader != null, "Material: " + material.Name + " depends on vertex shader: " +
-                        material.VertexShaderId + ", but it is no longer in the database! (this shouldnt happen!");
+                    Debug.Assert(vertexShader != null, "StateGroup: " + stateGroup.Name + " depends on vertex shader: " +
+                        stateGroup.VertexShaderId + ", but it is no longer in the database! (this shouldnt happen!");
 
-                    material.VertexShader = vertexShader;
+                    stateGroup.VertexShader = vertexShader;
                 }
 
-                if (!string.IsNullOrEmpty(material.GeometryShaderId))
+                if (!string.IsNullOrEmpty(stateGroup.GeometryShaderId))
                 {
-                    var geometryShader = viewmodel.Shaders.First(s => s.Name == material.GeometryShaderId);
+                    var geometryShader = viewmodel.Shaders.First(s => s.Name == stateGroup.GeometryShaderId);
 
-                    Debug.Assert(geometryShader != null, "Material: " + material.Name + " depends on geometry shader: " +
-                        material.GeometryShaderId + ", but it is no longer in the database! (this shouldnt happen!");
+                    Debug.Assert(geometryShader != null, "StateGroup: " + stateGroup.Name + " depends on geometry shader: " +
+                        stateGroup.GeometryShaderId + ", but it is no longer in the database! (this shouldnt happen!");
 
-                    material.GeometryShader = geometryShader;
+                    stateGroup.GeometryShader = geometryShader;
                 }
 
-                if (!string.IsNullOrEmpty(material.PixelShaderId))
+                if (!string.IsNullOrEmpty(stateGroup.PixelShaderId))
                 {
-                    var pixelShader = viewmodel.Shaders.First(s => s.Name == material.PixelShaderId);
+                    var pixelShader = viewmodel.Shaders.First(s => s.Name == stateGroup.PixelShaderId);
 
-                    Debug.Assert(pixelShader != null, "Material: " + material.Name + " depends on pixel shader: " +
-                        material.PixelShaderId + ", but it is no longer in the database! (this shouldnt happen!");
+                    Debug.Assert(pixelShader != null, "StateGroup: " + stateGroup.Name + " depends on pixel shader: " +
+                        stateGroup.PixelShaderId + ", but it is no longer in the database! (this shouldnt happen!");
 
-                    material.PixelShader = pixelShader;
+                    stateGroup.PixelShader = pixelShader;
                 }
+            }
 
+            foreach(var material in viewmodel.Materials)
+            {
                 foreach (var texture in material.Textures)
                 {
                     var source = viewmodel.Textures.First(t => t.Name == texture.SourceId);

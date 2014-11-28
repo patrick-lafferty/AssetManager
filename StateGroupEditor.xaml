@@ -1,0 +1,278 @@
+﻿<Window x:Class="Glitch2.StateGroupEditor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Glitch2"
+        Title="StateGroupEditor" Width="900" Height="600"
+        WindowStartupLocation="CenterOwner">
+    <TabControl>
+
+        <TabItem Header="StateGroup">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Name"/>
+                <TextBox Text="{Binding asset.Name}"                          
+                             Grid.Column="1"/>
+                <TextBlock Text="Description"
+                               Grid.Row="2"/>
+                <TextBox Text="{Binding asset.Description}"                          
+                             Grid.Row="2"
+                             Grid.Column="1"
+                             
+                             AcceptsReturn="True"
+                             Height="200"
+                             ScrollViewer.VerticalScrollBarVisibility="Visible"/>
+
+                <Button Content="Save" 
+                        Click="Save"
+                        Grid.Row="4"/>
+
+            </Grid>
+        </TabItem>
+
+        <TabItem Header="Shaders">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="70"/>
+                </Grid.RowDefinitions>
+
+                <RadioButton Content="Vertex+Pixel"
+                             Grid.Row="0"
+                             x:Name="VertexPixel"
+                             Checked="CombinationSelected"
+                            />
+
+                <StackPanel Grid.Row="1" Margin="30,0,0,0"
+                            Visibility="{Binding VertexPixelVisible}">
+                    <StackPanel Orientation="Horizontal"
+                            
+                            IsEnabled="{Binding VertexEnabled}">
+                        <TextBlock Text="Vertex"/>
+                        <ComboBox ItemsSource="{Binding AvailableVertexShaders}"
+                              SelectedItem="{Binding asset.VertexShader}"
+                              DisplayMemberPath="Name"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal"                            
+                            IsEnabled="{Binding PixelEnabled}">
+                        <TextBlock Text="Pixel"/>
+                        <ComboBox ItemsSource="{Binding AvailablePixelShaders}"
+                              SelectedItem="{Binding asset.PixelShader}"
+                              DisplayMemberPath="Name"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <RadioButton Content="Vertex+Geometry+Pixel"
+                             Grid.Row="2" x:Name="VertexGeometryPixel"
+                             Checked="CombinationSelected"/>
+
+                <StackPanel Grid.Row="3" Margin="30,0,0,0"
+                            Visibility="{Binding VertexGeometryPixelVisible}">
+                    <StackPanel Orientation="Horizontal"
+                            
+                            IsEnabled="{Binding VertexEnabled}">
+                        <TextBlock Text="Vertex"/>
+                        <ComboBox ItemsSource="{Binding AvailableVertexShaders}"
+                              SelectedItem="{Binding asset.VertexShader}"
+                              DisplayMemberPath="Name"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal"                            
+                            IsEnabled="{Binding GeometryEnabled}">
+                        <TextBlock Text="Geometry"/>
+                        <ComboBox ItemsSource="{Binding AvailableGeometryShaders}"
+                              SelectedItem="{Binding asset.GeometryShader}"
+                              DisplayMemberPath="Name"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal"                            
+                            IsEnabled="{Binding PixelEnabled}">
+                        <TextBlock Text="Pixel"/>
+                        <ComboBox ItemsSource="{Binding AvailablePixelShaders}"
+                              SelectedItem="{Binding asset.PixelShader}"
+                              DisplayMemberPath="Name"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <RadioButton Content="Vertex+Geometry"
+                             Grid.Row="4" x:Name="VertexGeometry"
+                             Checked="CombinationSelected"/>
+
+                <StackPanel Grid.Row="5" Margin="30,0,0,0"
+                            Visibility="{Binding VertexGeometryVisible}">
+                    <StackPanel Orientation="Horizontal"
+                            
+                            IsEnabled="{Binding VertexEnabled}">
+                        <TextBlock Text="Vertex"/>
+                        <ComboBox ItemsSource="{Binding AvailableVertexShaders}"
+                              SelectedItem="{Binding asset.VertexShader}"
+                              DisplayMemberPath="Name"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal"                            
+                            IsEnabled="{Binding GeometryEnabled}">
+                        <TextBlock Text="Geometry"/>
+                        <ComboBox ItemsSource="{Binding AvailableGeometryShaders}"
+                              SelectedItem="{Binding asset.GeometryShader}"
+                              DisplayMemberPath="Name"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </TabItem>
+
+        <TabItem Header="Resources">
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Textures"/>
+
+                <DataGrid ItemsSource="{Binding asset.TextureBindings}" 
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      Grid.Column="1"
+                      SelectedItem="{Binding SelectedTexture}"
+                      >
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Remove this texture" Click="RemoveSelectedTexture"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Slot" Binding="{Binding Slot}" />
+                        <DataGridTextColumn Header="Binding" Binding="{Binding Binding}" />
+
+                        <!--<DataGridTemplateColumn Header="Binding">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ComboBox ItemsSource="{Binding AvailableTextures, RelativeSource={RelativeSource AncestorType=Window}}"  
+                                              SelectedItem="{Binding Binding, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>-->
+
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <Button Content="Add texture" Click="AddTexture"
+                        Grid.Column="2"/>
+
+                <TextBlock Text="Samplers" 
+                           Grid.Row="2"/>
+
+                <DataGrid ItemsSource="{Binding asset.Samplers}"
+                        AutoGenerateColumns="True"
+                        CanUserAddRows="False"
+                        CanUserDeleteRows="False" 
+                        Grid.Row="2" Grid.Column="1"
+                        SelectedItem="{Binding SelectedSampler}">
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Remove this sampler" Click="RemoveSelectedSampler"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+                </DataGrid>
+
+                <Button Content="Add sampler" Click="AddSampler"
+                        Grid.Row="2"
+                        Grid.Column="2"/>
+
+            </Grid>
+        </TabItem>
+
+        <TabItem Header="Blend State">
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+
+                <DataGrid ItemsSource="{Binding asset.BlendState.RenderTargets}"
+                          AutoGenerateColumns="True"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          SelectedItem="{Binding SelectedRenderTarget}"
+                          >
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Remove this render target" Click="RemoveSelectedRenderTarget" />
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+                </DataGrid>
+
+                <Button Content="Add render target" Click="AddRenderTarget"
+                        Grid.Row="1"/>
+
+            </Grid>
+        </TabItem>
+
+        <TabItem Header="Depth Stencil State">
+            <Grid DataContext="{Binding asset.DepthStencilState}">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Enable depth testing" />
+                <CheckBox IsChecked="{Binding DepthEnable}"
+                          Grid.Column="1"/>
+
+                <TextBlock Text="Depth write mask"
+                           Grid.Row="1"/>
+                <ComboBox ItemsSource="{Binding AvailableDepthWriteMasks, RelativeSource={RelativeSource AncestorType=local:StateGroupEditor}}"
+                          SelectedItem="{Binding DepthWriteMask}"
+                          Grid.Row="1"
+                          Grid.Column="1"/>
+
+                <TextBlock Text="Depth comparison function"
+                           Grid.Row="2"
+                           />
+                <ComboBox ItemsSource="{Binding AvailableDepthFuncs, RelativeSource={RelativeSource AncestorType=local:StateGroupEditor}}"
+                          SelectedItem="{Binding DepthFunc}"
+                          Grid.Row="2"
+                          Grid.Column="1"/>
+
+            </Grid>
+        </TabItem>
+    </TabControl>
+</Window>

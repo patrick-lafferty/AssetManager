@@ -14,36 +14,9 @@ namespace Importers
     [mate - 77 65 84 69 - 4 bytes]
     [format version - 4 bytes]
 
-    shaders:
-    [combination - 1 byte] {0 = vertex/pixel, 1 = vertex/geometry/pixel, 2 = vertex/geometry}
-    [string filename - x bytes?]*
-
-    samplers:
-    [count - 1 byte]
-
-    [string name - x bytes]
-    [filter - 1 byte]
-    [addressU - 1 byte]
-    [addressV - 1 byte]
-    [addressW - 1 byte]
-
-
-    blend state:         indented because theres other properties of blend state besides render target, not yet implemented
-        [render target count - 1 byte]
-
-        render targets:
-        [blendEnabled - 1 byte]
-        [blendOperation - 1 byte]
-        [blendOperationAlpha - 1 byte]
-        [sourceBlend - 1 byte]
-        [destinationBlend - 1 byte]
-        [sourceBlendAlpha - 1 byte]
-        [destinationBlendAlpha - 1 byte]
-        [renderTargetWriteMask - 1 byte]
-        
     textures:
     [count - 1 byte]
-    [texture slot - 4 bytes]
+    [texture binding - x bytes]
     [string filename - x bytes]
     [real or generated - 1 byte]          is this texture an offline asset, or one generated at runtime
 
@@ -112,69 +85,11 @@ namespace Importers
 
                     writer.Write(version);
 
-                    if (asset.ShaderCombination == ShaderCombination.VertexPixel)
-                    {
-                        writer.Write((int)0);
-
-                        writeString(writer, Path.GetFileName(asset.VertexShader.ImportedFilename) + ".cvs");
-                        writeString(writer, Path.GetFileName(asset.PixelShader.ImportedFilename) + ".cps");
-
-                    }
-                    else if (asset.ShaderCombination == ShaderCombination.VertexGeometryPixel)
-                    {
-                        writer.Write((int)1);
-                        //writer.Write(asset.VertexShader.ImportedFilename);
-                        //writer.Write(asset.GeometryShader.ImportedFilename);
-                        //writer.Write(asset.PixelShader.ImportedFilename);
-                        writeString(writer, asset.VertexShader.ImportedFilename + ".cvs");
-                        writeString(writer, asset.GeometryShader.ImportedFilename + ".cgs");
-                        writeString(writer, asset.PixelShader.ImportedFilename + ".cps");
-                    }
-                    else if (asset.ShaderCombination == ShaderCombination.VertexGeometry)
-                    {
-                        writer.Write((int)2);
-                        //writer.Write(asset.VertexShader.ImportedFilename);
-                        //writer.Write(asset.GeometryShader.ImportedFilename);                        
-                        writeString(writer, asset.VertexShader.ImportedFilename + ".cvs");
-                        writeString(writer, asset.GeometryShader.ImportedFilename + ".cgs");
-                    }
-
-                    writer.Write((int)asset.Samplers.Count);
-
-                    foreach (var sampler in asset.Samplers)
-                    {
-                        //writer.Write(sampler.Name);
-                        writeString(writer, sampler.Name);
-                        writer.Write((int)sampler.Filter);
-                        writer.Write((int)sampler.AddressU);
-                        writer.Write((int)sampler.AddressV);
-                        writer.Write((int)sampler.AddressW);
-                    }
-
-                    writer.Write((int)asset.BlendState.RenderTargets.Count);
-
-                    foreach (var renderTarget in asset.BlendState.RenderTargets)
-                    {
-                        writer.Write((int)Convert.ToInt32(renderTarget.BlendEnabled));
-                        writer.Write((int)renderTarget.BlendOperation);
-                        writer.Write((int)renderTarget.BlendOperationAlpha);
-                        writer.Write((int)renderTarget.SourceBlend);
-                        writer.Write((int)renderTarget.DestinationBlend);
-                        writer.Write((int)renderTarget.SourceBlendAlpha);
-                        writer.Write((int)renderTarget.DestinationBlendAlpha);
-                        writer.Write((int)renderTarget.RenderTargetWriteMask);
-                    }
-
-                    writer.Write((int)Convert.ToInt32(asset.DepthStencilState.DepthEnable));
-                    writer.Write((int)asset.DepthStencilState.DepthWriteMask);
-                    writer.Write((int)asset.DepthStencilState.DepthFunc);
-
                     writer.Write((int)asset.Textures.Count);
 
                     foreach (var texture in asset.Textures)
                     {
-                        writer.Write(texture.TextureSlot);
-                        //writer.Write(texture.Source.ImportedFilename);
+                        writeString(writer, texture.Binding);
                         writeString(writer, texture.Source.ImportedFilename);
                         writer.Write((byte)0); //todo: NOT IMPLEMENTED YET
                     }

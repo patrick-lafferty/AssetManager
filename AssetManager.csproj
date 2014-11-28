@@ -56,6 +56,9 @@
     </ApplicationDefinition>
     <Compile Include="Asset.cs" />
     <Compile Include="AssetMetadata.cs" />
+    <Compile Include="BaseMaterialOnStateGroup.xaml.cs">
+      <DependentUpon>BaseMaterialOnStateGroup.xaml</DependentUpon>
+    </Compile>
     <Compile Include="DataTemplates.cs" />
     <Compile Include="FontAsset.cs" />
     <Compile Include="MaterialAsset.cs" />
@@ -69,12 +72,21 @@
     </Compile>
     <Compile Include="ScriptAsset.cs" />
     <Compile Include="ShaderAsset.cs" />
+    <Compile Include="StateGroup.cs" />
+    <Compile Include="StateGroupEditor.xaml.cs">
+      <DependentUpon>StateGroupEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="StateGroupImporter.cs" />
     <Compile Include="TextureAsset.cs" />
     <Compile Include="UIAsset.cs" />
     <Compile Include="Updator.cs" />
     <Page Include="AssetDatabase.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="BaseMaterialOnStateGroup.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="DataTemplates.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -139,6 +151,10 @@
     <Page Include="NewParameter.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="StateGroupEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>

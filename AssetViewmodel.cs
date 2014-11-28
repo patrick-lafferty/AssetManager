@@ -29,6 +29,7 @@ namespace Glitch2
             Scripts = new ObservableCollection<ScriptAsset>();
             Shaders = new ObservableCollection<ShaderAsset>();
             Materials = new ObservableCollection<MaterialAsset>();
+            StateGroups = new ObservableCollection<StateGroupAsset>();
             Fonts = new ObservableCollection<FontAsset>();
             UIs = new ObservableCollection<UIAsset>();
 
@@ -63,6 +64,9 @@ namespace Glitch2
 
         public MaterialAsset SelectedMaterial { get; set; }
         public ObservableCollection<MaterialAsset> Materials { get; set; }
+
+        public StateGroupAsset SelectedStateGroup { get; set; }
+        public ObservableCollection<StateGroupAsset> StateGroups { get; set; }
 
         public FontAsset SelectedFont { get; set; }
         public ObservableCollection<FontAsset> Fonts { get; set; }

@@ -450,19 +450,19 @@ namespace Glitch2
             if (result == MessageBoxResult.Yes)
             {
 
-                //check to see if any material depends on this shader
+                //check to see if any state group depends on this shader
                 var dependencyChecker = new DependencyChecker();
                 dependencyChecker.Dependencies =
-                       viewmodel.Materials.Where(
+                       viewmodel.StateGroups.Where(
                            m => m.VertexShader == viewmodel.SelectedShader
                                || m.GeometryShader == viewmodel.SelectedShader
                                || m.PixelShader == viewmodel.SelectedShader)
-                               .Select(m => new Dependency { Name = m.Name, AssetType = "Material" }).ToList();
+                               .Select(m => new Dependency { Name = m.Name, AssetType = "StateGroup" }).ToList();
 
                 if (dependencyChecker.Dependencies.Count > 0)
                 {
                     dependencyChecker.Show();
-                    MessageBox.Show("Can't remove this shader, there are materials that depend on it. See the dependency window", "ERROR!", MessageBoxButton.OK, MessageBoxImage.Stop);
+                    MessageBox.Show("Can't remove this shader, there are state groups that depend on it. See the dependency window", "ERROR!", MessageBoxButton.OK, MessageBoxImage.Stop);
                     return;
                 }
                 else
@@ -481,24 +481,20 @@ namespace Glitch2
 
         private void CreateMaterial(object sender, RoutedEventArgs e)
         {
-            MaterialEditor editor = new MaterialEditor();
-            editor.AvailableVertexShaders = viewmodel.Shaders;
+            var basedStateGroup = new BaseMaterialOnStateGroup(viewmodel.StateGroups.ToList());
+            var result = basedStateGroup.ShowDialog();
 
-            editor.AvailableGeometryShaders = new ObservableCollection<ShaderAsset>(viewmodel.Shaders.Where(s =>
-                s.Combination == ShaderCombination.VertexGeometry || s.Combination == ShaderCombination.VertexGeometryPixel));
+            if (result == false)
+                return;
 
-            editor.AvailablePixelShaders = new ObservableCollection<ShaderAsset>(viewmodel.Shaders.Where(s =>
-                s.Combination == ShaderCombination.VertexPixel || s.Combination == ShaderCombination.VertexGeometryPixel));
+            var editor = new MaterialEditor(basedStateGroup.SelectedStateGroup);
 
             editor.AvailableTextures = viewmodel.Textures;
 
-            var result = editor.ShowDialog();
+            result = editor.ShowDialog();
 
             if (result == true)
             {
-                /*var newAssetEvent = new ToolEvents.NewAssetEvent() { Asset = editor.asset, AssetType = ToolEvents.AssetType.Material };
-
-                client.ProcessEvent(newAssetEvent);*/
                 AssetMetadata.createMaterialMetadata(editor.asset);
 
                 viewmodel.Materials.Add(editor.asset);
@@ -514,14 +510,6 @@ namespace Glitch2
             string oldImported = viewmodel.SelectedMaterial.ImportedFilename;
 
             MaterialEditor editor = new MaterialEditor(viewmodel.SelectedMaterial);
-
-            editor.AvailableVertexShaders = viewmodel.Shaders;
-
-            editor.AvailableGeometryShaders = new ObservableCollection<ShaderAsset>(viewmodel.Shaders.Where(s =>
-                s.Combination == ShaderCombination.VertexGeometry || s.Combination == ShaderCombination.VertexGeometryPixel));
-
-            editor.AvailablePixelShaders = new ObservableCollection<ShaderAsset>(viewmodel.Shaders.Where(s =>
-                s.Combination == ShaderCombination.VertexPixel || s.Combination == ShaderCombination.VertexGeometryPixel));
 
             editor.AvailableTextures = viewmodel.Textures;
 
@@ -739,7 +727,83 @@ namespace Glitch2
             }
         }
 
-        
+        private void CreateStateGroup(object sender, RoutedEventArgs e)
+        {
+            StateGroupEditor editor = new StateGroupEditor();
+            editor.AvailableVertexShaders = viewmodel.Shaders;
 
+            editor.AvailableGeometryShaders = new ObservableCollection<ShaderAsset>(viewmodel.Shaders.Where(s =>
+                s.Combination == ShaderCombination.VertexGeometry || s.Combination == ShaderCombination.VertexGeometryPixel));
+
+            editor.AvailablePixelShaders = new ObservableCollection<ShaderAsset>(viewmodel.Shaders.Where(s =>
+                s.Combination == ShaderCombination.VertexPixel || s.Combination == ShaderCombination.VertexGeometryPixel));
+
+            var result = editor.ShowDialog();
+
+            if (result == true)
+            {
+                AssetMetadata.createStateGroupMetadata(editor.asset);
+
+                viewmodel.StateGroups.Add(editor.asset);
+            }
+        }
+
+        private void EditStateGroup(object sender, RoutedEventArgs e)
+        {
+            if (viewmodel.SelectedStateGroup == null)
+                return;
+
+            string oldName = viewmodel.SelectedStateGroup.Name;
+            string oldImported = viewmodel.SelectedStateGroup.ImportedFilename;
+
+            var editor = new StateGroupEditor(viewmodel.SelectedStateGroup);
+
+            editor.AvailableVertexShaders = viewmodel.Shaders;
+
+            editor.AvailableGeometryShaders = new ObservableCollection<ShaderAsset>(viewmodel.Shaders.Where(s =>
+                s.Combination == ShaderCombination.VertexGeometry || s.Combination == ShaderCombination.VertexGeometryPixel));
+
+            editor.AvailablePixelShaders = new ObservableCollection<ShaderAsset>(viewmodel.Shaders.Where(s =>
+                s.Combination == ShaderCombination.VertexPixel || s.Combination == ShaderCombination.VertexGeometryPixel));
+
+            var result = editor.ShowDialog();
+
+            if (result == true)
+            {
+                if (oldName != editor.asset.Name)
+                {
+                    var newName = editor.asset.Name;
+
+                    editor.asset.Name = oldName;
+
+                    //we changed the name, delete the old asset then create a new one
+                    System.IO.File.Delete(oldImported);
+
+                    editor.asset.Name = newName;
+                }
+                else
+                {
+                    AssetMetadata.createStateGroupMetadata(viewmodel.SelectedStateGroup);
+                }
+            }
+        }
+
+        private void RemoveStateGroup(object sender, RoutedEventArgs e)
+        {
+            if (viewmodel.SelectedStateGroup == null)
+                return;
+
+            var result = MessageBox.Show("This will remove the state group from the asset database, and the exported state group file from ImportedAssets\\StateGroups\\. Are you sure? (Do this only if its saved in mercurial)",
+              "WARNING! STATE GROUP DELETION IMMINENT!",
+              MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                AssetMetadata.deletestateGroupMetadata(viewmodel.SelectedStateGroup);
+
+                System.IO.File.Delete(viewmodel.SelectedStateGroup.ImportedFilename);
+                viewmodel.StateGroups.Remove(viewmodel.SelectedStateGroup);
+            }
+        }
     }
 }

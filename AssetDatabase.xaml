@@ -28,6 +28,7 @@
             </MenuItem>
 
             <MenuItem Header="Create asset">
+                <MenuItem Header="State Group" Click="CreateStateGroup"/>
                 <MenuItem Header="Material" Click="CreateMaterial" />
                 <MenuItem Header="User Interface" Click="CreateUserInterface" />
             </MenuItem>
@@ -153,7 +154,6 @@
                         <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
                         <DataGridTextColumn Binding="{Binding Description}" Header="Description" IsReadOnly="True"/>
                         <DataGridTextColumn Binding="{Binding LastUpdated}" Header="Last updated" IsReadOnly="True"/>
-                        <DataGridTextColumn Binding="{Binding ShaderCombination}" Header="Shader combination" IsReadOnly="True"/>
                         <DataGridTextColumn Binding="{Binding ImportedFilename}" Header="Imported filename" IsReadOnly="True"/>
                     </DataGrid.Columns>
                     <DataGrid.ContextMenu>
@@ -161,6 +161,31 @@
                             <MenuItem Header="Edit mateiral" Click="EditMaterial" />
                             <Separator />
                             <MenuItem Header="Remove material" Click="RemoveMaterial" />
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+                </DataGrid>
+            </TabItem>
+
+            <TabItem Header="StateGroups">
+                <DataGrid ItemsSource="{Binding StateGroups}"
+                                      CanUserSortColumns="True"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      SelectedItem="{Binding SelectedStateGroup}"
+                                      >
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding Name}" Header="Name" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding Description}" Header="Description" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding LastUpdated}" Header="Last updated" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding ShaderCombination}" Header="Shader combination" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding ImportedFilename}" Header="Imported filename" IsReadOnly="True"/>
+                    </DataGrid.Columns>
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Edit stategroup" Click="EditStateGroup" />
+                            <Separator />
+                            <MenuItem Header="Remove stategroup" Click="RemoveStateGroup" />
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                 </DataGrid>

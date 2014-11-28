@@ -82,70 +82,20 @@ namespace AssetManager
             var metadata = new StringBuilder();
             metadata.AppendLine("Description= " + material.Description)
                 .AppendLine("LastUpdated= " + material.LastUpdated)
-                .AppendLine("VertexShader= " + material.VertexShaderId)
-                .AppendLine("GeometryShader= " + material.GeometryShaderId)
-                .AppendLine("PixelShader= " + material.PixelShaderId)
-                .AppendLine("ShaderCombination= " + material.ShaderCombination.ToString())
                 .AppendLine("ImportedFilename= " + material.ImportedFilename);
-
-            var samplers = new StringBuilder();
-
-            //sampler format: Samplers= name, filter, addressU, addressV, addressW; (sampler 2); (sampler 3)
-            foreach(var sampler in material.Samplers)
-            {
-                samplers.Append(sampler.Name)
-                    .Append(",")
-                    .Append(sampler.Filter.ToString())
-                    .Append(",")
-                    .Append(sampler.AddressU.ToString())
-                    .Append(",")
-                    .Append(sampler.AddressV.ToString())
-                    .Append(",")
-                    .Append(sampler.AddressW.ToString())
-                    .Append(";");
-            }
-
-            metadata.AppendLine("Samplers= " + samplers.ToString());
 
             var textures = new StringBuilder();
 
             //texture format: Textures= slot, sourceId; (texture 2); ...
             foreach(var texture in material.Textures)
             {
-                textures.Append(texture.TextureSlot)
+                textures.Append(texture.Binding)
                     .Append(",")
                     .Append(texture.SourceId)
                     .Append(";");
             }
 
             metadata.AppendLine("Textures= " + textures.ToString());
-
-            var blendState = new StringBuilder();
-
-            //blendstate format: BlendState= index, enabled, op, opAlpha, srcBlend, dstBlend, srcBlendAlpha, destBlendAlpha, writeMask; ...
-            foreach(var renderTarget in material.BlendState.RenderTargets)
-            {
-                blendState.Append(renderTarget.Index)
-                    .Append(",")
-                    .Append(renderTarget.BlendEnabled)
-                    .Append(",")
-                    .Append(renderTarget.BlendOperation.ToString())
-                    .Append(",")
-                    .Append(renderTarget.BlendOperationAlpha.ToString())
-                    .Append(",")
-                    .Append(renderTarget.SourceBlend.ToString())
-                    .Append(",")
-                    .Append(renderTarget.DestinationBlend.ToString())
-                    .Append(",")
-                    .Append(renderTarget.SourceBlendAlpha.ToString())
-                    .Append(",")
-                    .Append(renderTarget.DestinationBlendAlpha.ToString())
-                    .Append(",")
-                    .Append(renderTarget.RenderTargetWriteMask.ToString())
-                    .Append(";");
-            }
-
-            metadata.AppendLine("BlendState= " + blendState.ToString());
 
             //group format: name# parameters
             foreach(var parameterGroup in material.ParameterGroups)
@@ -179,6 +129,84 @@ namespace AssetManager
         static internal void deleteMaterialMetadata(MaterialAsset material)
         {
             deleteMetadata(material, "Materials/");
+        }
+
+        static internal void createStateGroupMetadata(StateGroupAsset stateGroup)
+        {
+            var metadata = new StringBuilder();
+            metadata.AppendLine("Description= " + stateGroup.Description)
+                .AppendLine("LastUpdated= " + stateGroup.LastUpdated)
+                .AppendLine("VertexShader= " + stateGroup.VertexShaderId)
+                .AppendLine("GeometryShader= " + stateGroup.GeometryShaderId)
+                .AppendLine("PixelShader= " + stateGroup.PixelShaderId)
+                .AppendLine("ShaderCombination= " + stateGroup.ShaderCombination.ToString())
+                .AppendLine("ImportedFilename= " + stateGroup.ImportedFilename);
+
+            var samplers = new StringBuilder();
+
+            //sampler format: Samplers= name, filter, addressU, addressV, addressW; (sampler 2); (sampler 3)
+            foreach (var sampler in stateGroup.Samplers)
+            {
+                samplers.Append(sampler.Name)
+                    .Append(",")
+                    .Append(sampler.Filter.ToString())
+                    .Append(",")
+                    .Append(sampler.AddressU.ToString())
+                    .Append(",")
+                    .Append(sampler.AddressV.ToString())
+                    .Append(",")
+                    .Append(sampler.AddressW.ToString())
+                    .Append(";");
+            }
+
+            metadata.AppendLine("Samplers= " + samplers.ToString());
+
+            var textures = new StringBuilder();
+
+            //texture format: Textures= slot, sourceId; (texture 2); ...
+            foreach (var texture in stateGroup.TextureBindings)
+            {
+                textures.Append(texture.Slot)
+                    .Append(",")
+                    .Append(texture.Binding)
+                    .Append(";");
+            }
+
+            metadata.AppendLine("Textures= " + textures.ToString());
+
+            var blendState = new StringBuilder();
+
+            //blendstate format: BlendState= index, enabled, op, opAlpha, srcBlend, dstBlend, srcBlendAlpha, destBlendAlpha, writeMask; ...
+            foreach (var renderTarget in stateGroup.BlendState.RenderTargets)
+            {
+                blendState.Append(renderTarget.Index)
+                    .Append(",")
+                    .Append(renderTarget.BlendEnabled)
+                    .Append(",")
+                    .Append(renderTarget.BlendOperation.ToString())
+                    .Append(",")
+                    .Append(renderTarget.BlendOperationAlpha.ToString())
+                    .Append(",")
+                    .Append(renderTarget.SourceBlend.ToString())
+                    .Append(",")
+                    .Append(renderTarget.DestinationBlend.ToString())
+                    .Append(",")
+                    .Append(renderTarget.SourceBlendAlpha.ToString())
+                    .Append(",")
+                    .Append(renderTarget.DestinationBlendAlpha.ToString())
+                    .Append(",")
+                    .Append(renderTarget.RenderTargetWriteMask.ToString())
+                    .Append(";");
+            }
+
+            metadata.AppendLine("BlendState= " + blendState.ToString());
+
+            File.WriteAllText(MetadataPath + "stateGroups/" + stateGroup.Name + ".meta", metadata.ToString());
+        }
+
+        static internal void deletestateGroupMetadata(StateGroupAsset stateGroup)
+        {
+            deleteMetadata(stateGroup, "stateGroups/");
         }
     }
 }
