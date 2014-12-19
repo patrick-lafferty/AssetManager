@@ -1,5 +1,6 @@
 ﻿using Assets;
 using Glitch2;
+using Importers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,6 +78,25 @@ namespace AssetManager
             else if (asset is MaterialAsset)
             {
                 //this will never happen, since materials aren't stored in raw format
+            }
+            else if (asset is StateGroupAsset)
+            {
+                var stateGroup = asset as StateGroupAsset;
+
+                var result = StateGroupImporter.Import(stateGroup);
+
+                if (result)
+                {
+                    successMessage = "Successfully updated state group: " + stateGroup.Name;
+                    stateGroup.LastUpdated = DateTime.Now.ToString();
+                    AssetMetadata.createStateGroupMetadata(stateGroup);
+
+                    return true;
+                }
+                else
+                {
+                    error = "ERROR: Updating state group: " + stateGroup.Name + " failed!" + Environment.NewLine + result;
+                }
             }
 
             return false;

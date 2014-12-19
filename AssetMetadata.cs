@@ -28,7 +28,8 @@ namespace AssetManager
                 .AppendLine("LastUpdated= " + mesh.LastUpdated)
                 .AppendLine("SourceFilename= " + mesh.SourceFilename)
                 .AppendLine("Topology= " + mesh.Topology.ToString())
-                .AppendLine("ImportedFilename= " + mesh.ImportedFilename);
+                .AppendLine("ImportedFilename= " + mesh.ImportedFilename)
+                .AppendLine("ImporterVersion= " + mesh.ImporterVersion);
 
             File.WriteAllText(MetadataPath + "Meshes/" + mesh.Name + ".meta", metadata.ToString());
         }
@@ -50,7 +51,8 @@ namespace AssetManager
                 .AppendLine("ChannelMappings=" + mappings)
                 .AppendLine("LastUpdated= " + texture.LastUpdated)
                 .AppendLine("SourceFilenames= " + string.Join(",", texture.SourceFilenames))
-                .AppendLine("ImportedFilename= " + texture.ImportedFilename);
+                .AppendLine("ImportedFilename= " + texture.ImportedFilename)
+                .AppendLine("ImporterVersion= " + texture.ImporterVersion);
 
             File.WriteAllText(MetadataPath + "Textures/" + texture.Name + ".meta", metadata.ToString());
         }
@@ -67,7 +69,8 @@ namespace AssetManager
                 .AppendLine("Combination= " + shader.Combination.ToString())
                 .AppendLine("LastUpdated= " + shader.LastUpdated)
                 .AppendLine("SourceFilename= " + shader.SourceFilename)
-                .AppendLine("ImportedFilename= " + shader.ImportedFilename);
+                .AppendLine("ImportedFilename= " + shader.ImportedFilename)
+                .AppendLine("ImporterVersion= " + shader.ImporterVersion);
 
             File.WriteAllText(MetadataPath + "Shaders/" + shader.Name + ".meta", metadata.ToString());
         }
@@ -82,7 +85,8 @@ namespace AssetManager
             var metadata = new StringBuilder();
             metadata.AppendLine("Description= " + material.Description)
                 .AppendLine("LastUpdated= " + material.LastUpdated)
-                .AppendLine("ImportedFilename= " + material.ImportedFilename);
+                .AppendLine("ImportedFilename= " + material.ImportedFilename)
+                .AppendLine("ImporterVersion= " + material.ImporterVersion);
 
             var textures = new StringBuilder();
 
@@ -140,7 +144,8 @@ namespace AssetManager
                 .AppendLine("GeometryShader= " + stateGroup.GeometryShaderId)
                 .AppendLine("PixelShader= " + stateGroup.PixelShaderId)
                 .AppendLine("ShaderCombination= " + stateGroup.ShaderCombination.ToString())
-                .AppendLine("ImportedFilename= " + stateGroup.ImportedFilename);
+                .AppendLine("ImportedFilename= " + stateGroup.ImportedFilename)
+                .AppendLine("ImporterVersion= " + stateGroup.ImporterVersion);
 
             var samplers = new StringBuilder();
 

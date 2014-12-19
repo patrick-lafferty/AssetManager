@@ -21,6 +21,9 @@ namespace Glitch2
     /// </summary>
     public partial class ImportTexture : Window
     {
+        static readonly int version = 1;
+        public static int ImporterVersion { get { return version; } }
+
         public enum Channel
         {
             R, G, B, A
@@ -155,6 +158,7 @@ namespace Glitch2
             else
             {
                 asset.LastUpdated = DateTime.Now.ToString();
+                asset.ImporterVersion = ImporterVersion;
 
                 using (var stream = File.OpenRead(asset.ImportedFilename))
                 {

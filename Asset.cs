@@ -21,6 +21,17 @@ namespace Assets
             }
         }
 
+        int importerVersion;
+        public int ImporterVersion
+        {
+            get { return importerVersion; }
+            set
+            {
+                importerVersion = value;
+                NotifyPropertyChanged("ImporterVersion");
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void NotifyPropertyChanged(string prop)

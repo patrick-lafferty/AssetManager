@@ -8,22 +8,22 @@ using System.Threading.Tasks;
 
 namespace Importers
 {
-    /*
-    imported format:
+	/*
+	imported format:
 
-    [mate - 77 65 84 69 - 4 bytes]
-    [format version - 4 bytes]
+	[mate - 77 65 84 69 - 4 bytes]
+	[format version - 4 bytes]
 
-    textures:
-    [count - 1 byte]
-    [texture binding - x bytes]
-    [string filename - x bytes]
-    [real or generated - 1 byte]          is this texture an offline asset, or one generated at runtime
+	textures:
+	[count - 1 byte]
+	[texture binding - x bytes]
+	[string filename - x bytes]
+	[real or generated - 1 byte]          is this texture an offline asset, or one generated at runtime
 
-    default parameter values:
-    [parameter group count - 1 byte]
+	default parameter values:
+	[parameter group count - 1 byte]
 
-    parameter group:
+	parameter group:
 		[string name - x bytes]
 		[parameter count - 1 byte]
 
@@ -42,82 +42,85 @@ namespace Importers
 
 				[element count - 2 bytes]
 				[elements - scalar: 4 bytes, vector: 16 bytes, array: 16 bytes * count]
-    
-    */
+	
+	*/
 
-    public class MaterialImporter
-    {
-        const int version = 1;
+	public class MaterialImporter
+	{
+		static readonly int version = 1;
 
-        static char[] getAsciiString(string s)
-        {
-            Encoding ascii = Encoding.ASCII;
-            Encoding unicode = Encoding.Unicode;
+        public static int ImporterVersion { get { return version; } }
 
-            byte[] unicodeBytes = unicode.GetBytes(s);
+		static char[] getAsciiString(string s)
+		{
+			Encoding ascii = Encoding.ASCII;
+			Encoding unicode = Encoding.Unicode;
 
-            byte[] asciiBytes = Encoding.Convert(unicode, ascii, unicodeBytes);
+			byte[] unicodeBytes = unicode.GetBytes(s);
 
-            char[] asciiChars = new char[ascii.GetCharCount(asciiBytes, 0, asciiBytes.Length)];
-            ascii.GetChars(asciiBytes, 0, asciiBytes.Length, asciiChars, 0);
+			byte[] asciiBytes = Encoding.Convert(unicode, ascii, unicodeBytes);
 
-            return asciiChars;
-        }
+			char[] asciiChars = new char[ascii.GetCharCount(asciiBytes, 0, asciiBytes.Length)];
+			ascii.GetChars(asciiBytes, 0, asciiBytes.Length, asciiChars, 0);
 
-        static void writeString(BinaryWriter writer, string s)
-        {
-            var ascii = getAsciiString(s);
+			return asciiChars;
+		}
 
-            writer.Write(s.Length);
-            writer.Write(ascii);
-        }
+		static void writeString(BinaryWriter writer, string s)
+		{
+			var ascii = getAsciiString(s);
 
-        public static bool Import(MaterialAsset asset)
-        {
-            using (var stream = File.Open(asset.ImportedFilename, FileMode.Create))
-            {
-                using (var writer = new BinaryWriter(stream))
-                {
-                    writer.Write((byte)77);
-                    writer.Write((byte)65);
-                    writer.Write((byte)84);
-                    writer.Write((byte)69);
+			writer.Write(s.Length);
+			writer.Write(ascii);
+		}
 
-                    writer.Write(version);
+		public static bool Import(MaterialAsset asset)
+		{
+			using (var stream = File.Open(asset.ImportedFilename, FileMode.Create))
+			{
+				using (var writer = new BinaryWriter(stream))
+				{
+					writer.Write((byte)77);
+					writer.Write((byte)65);
+					writer.Write((byte)84);
+					writer.Write((byte)69);
 
-                    writer.Write((int)asset.Textures.Count);
+					writer.Write(version);
 
-                    foreach (var texture in asset.Textures)
-                    {
-                        writeString(writer, texture.Binding);
-                        writeString(writer, texture.Source.ImportedFilename);
-                        writer.Write((byte)0); //todo: NOT IMPLEMENTED YET
-                    }
+					writer.Write((int)asset.Textures.Count);
 
-                    writer.Write((int)asset.ParameterGroups.Count);
+					foreach (var texture in asset.Textures)
+					{
+						writeString(writer, texture.Binding);
+						writeString(writer, texture.Source.ImportedFilename);
+						writer.Write((byte)0); //todo: NOT IMPLEMENTED YET
+					}
 
-                    foreach (var group in asset.ParameterGroups)
-                    {
-                        //writer.Write(group.Name);
-                        writeString(writer, group.Name);
-                        writer.Write((byte)group.Parameters.Count);
+					writer.Write((int)asset.ParameterGroups.Count);
 
-                        foreach (var parameter in group.Parameters)
-                        {
-                            //writer.Write(parameter.Name);
-                            writeString(writer, parameter.Name);
-                            writer.Write((byte)parameter.PodType);
-                            writer.Write((byte)parameter.ParameterType);
-                            parameter.WriteoutValue(writer);
-                            
-                        }
-                    }
-                }
-            }
+					foreach (var group in asset.ParameterGroups)
+					{
+						//writer.Write(group.Name);
+						writeString(writer, group.Name);
+						writer.Write((byte)group.Parameters.Count);
 
-            asset.LastUpdated = DateTime.Now.ToString();
+						foreach (var parameter in group.Parameters)
+						{
+							//writer.Write(parameter.Name);
+							writeString(writer, parameter.Name);
+							writer.Write((byte)parameter.PodType);
+							writer.Write((byte)parameter.ParameterType);
+							parameter.WriteoutValue(writer);
+							
+						}
+					}
+				}
+			}
 
-            return true;
-        }
-    }
+			asset.LastUpdated = DateTime.Now.ToString();
+            asset.ImporterVersion = ImporterVersion;
+
+			return true;
+		}
+	}
 }

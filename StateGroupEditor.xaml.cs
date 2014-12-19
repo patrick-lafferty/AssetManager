@@ -314,7 +314,7 @@ namespace Glitch2
 
         private void AddRenderTarget(object sender, RoutedEventArgs e)
         {
-            asset.BlendState.RenderTargets.Add(new RenderTarget());
+            asset.BlendState.RenderTargets.Add(new RenderTarget() { RenderTargetWriteMask = WriteMask.All });
         }
 
         private void RemoveSelectedRenderTarget(object sender, RoutedEventArgs e)

@@ -158,7 +158,9 @@
                     </DataGrid.Columns>
                     <DataGrid.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="Edit mateiral" Click="EditMaterial" />
+                            <MenuItem Header="Edit material" Click="EditMaterial" />
+                            <Separator />
+                            <MenuItem Header="Copy material" Click="CopyMaterial" />
                             <Separator />
                             <MenuItem Header="Remove material" Click="RemoveMaterial" />
                         </ContextMenu>

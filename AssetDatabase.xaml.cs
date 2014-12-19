@@ -524,22 +524,41 @@ namespace Glitch2
                     editor.asset.Name = oldName;
 
                     //we changed the name, delete the old asset then create a new one
-                    /*var deleteAssetEvent = new ToolEvents.DeleteAssetEvent { Asset = editor.asset, AssetType = ToolEvents.AssetType.Material };
-                    client.ProcessEvent(deleteAssetEvent);*/
                     System.IO.File.Delete(oldImported);
 
                     editor.asset.Name = newName;
-
-                    /*var newAssetEvent = new ToolEvents.NewAssetEvent() { Asset = editor.asset, AssetType = ToolEvents.AssetType.Material };
-                    client.ProcessEvent(newAssetEvent);*/
                 }
                 else
                 {
-                    /*var updateAssetEvent = new ToolEvents.UpdateAssetEvent { Asset = editor.asset, AssetType = ToolEvents.AssetType.Material };
-                    client.ProcessEvent(updateAssetEvent);*/
                     AssetMetadata.createMaterialMetadata(viewmodel.SelectedMaterial);
                 }
             }
+        }
+
+        private void CopyMaterial(object sender, RoutedEventArgs e)
+        {
+            if (viewmodel.SelectedMaterial == null)
+                return;
+
+            var copy = new MaterialAsset()
+            {
+                Description = viewmodel.SelectedMaterial.Description,
+                Name = viewmodel.SelectedMaterial.Name + "_copy",
+                Textures = new ObservableCollection<Texture>(viewmodel.SelectedMaterial.Textures.ToList()),
+                ParameterGroups = new ObservableCollection<ParameterGroup>(viewmodel.SelectedMaterial.ParameterGroups.ToList())
+            };
+
+            MaterialEditor editor = new MaterialEditor(copy);
+
+            editor.AvailableTextures = viewmodel.Textures;
+
+            var result = editor.ShowDialog();
+
+            if (result == true)
+            {                
+                AssetMetadata.createMaterialMetadata(copy);
+                viewmodel.Materials.Add(copy);
+            } 
         }
 
         private void RemoveMaterial(object sender, RoutedEventArgs e)

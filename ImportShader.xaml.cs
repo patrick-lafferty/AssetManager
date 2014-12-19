@@ -20,6 +20,9 @@ namespace Glitch2
     /// </summary>
     public partial class ImportShader : Window
     {
+        static readonly int version = 2;
+        public static int ImporterVersion { get { return version; } }
+
         internal ShaderAsset asset = new ShaderAsset();
 
         public string Error { get; set; }
@@ -93,6 +96,7 @@ namespace Glitch2
             else
             {
                 asset.LastUpdated = DateTime.Now.ToString();
+                asset.ImporterVersion = ImporterVersion;
 
                 if (this.IsVisible)
                 {

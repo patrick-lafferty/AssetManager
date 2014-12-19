@@ -17,11 +17,30 @@ namespace Assets
     public enum Filter
     {
         //TODO: these are in wrong order, check d3d docs
-        ComparisonAnisotropic, ComparisonMinMagMipLinear, ComparisonMinMagLinearMipPoint,
+        /*ComparisonAnisotropic, ComparisonMinMagMipLinear, ComparisonMinMagLinearMipPoint,
         ComparisonMinLinearMagPointMipLinear, ComparisonMinLinearMagMipPoint, ComparisonMinPointMagMipLinear,
         ComparisonMinPointMagLinearMipPoint, ComparisonMinMagPointMipLinear, ComparisonMinMagMipPoint,
         Anisotropic, MinMagMipLinear, MinMagLinearMipPoint, MinLinearMagPointMipLinear, MinLinearMagMipPoint,
-        MinPointMagMipLinear, MinPointMagLinearMipPoint, MinMagPointMipLinear, MinMagMipPoint
+        MinPointMagMipLinear, MinPointMagLinearMipPoint, MinMagPointMipLinear, MinMagMipPoint*/
+        MinMagMipPoint = 0,
+        MinMagPointMipLinear = 0x1,
+        MinPointMagLinearMipPoint = 0x4,
+        MinPointMagMipLinear = 0x5,
+        MinLinearMagMipPoint = 0x10,
+        MinLinearMagPointMipLinear = 0x11,
+        MinMagLinearMipPoint = 0x14,
+        MinMagMipLinear = 0x15,
+        Anisotropic = 0x55,
+        ComparisonMinMagMipPoint = 0x80,
+        ComparisonMinMagPointMipLinear = 0x81,
+        ComparisonMinPointMagLinearMipPoint = 0x84,
+        ComparisonMinPointMagMipLinear = 0x85,
+        ComparisonMinLinearMagMipPoint = 0x90,
+        ComparisonMinLinearMagPointMipLinear = 0x91,
+        ComparisonMinMagLinearMipPoint = 0x94,
+        ComparisonMinMagMipLinear = 0x95,
+        ComparisonAnisotropic = 0xd5,
+        
     }
 
     public enum TextureAddressMode
@@ -43,8 +62,7 @@ namespace Assets
     }
 
     public enum BlendOperation
-    {
-        //Add, Maximum, Minimum, Subtract, ReverseSubtract
+    {        
         Add = 1, Subtract, ReverseSubtract, Minimum, Maximum
     }
 
@@ -67,18 +85,11 @@ namespace Assets
         SecondarySourceColor,
         InverseSecondarySourceColor,
         SecondarySourceAlpha,
-        InverseSecondarySourceAlpha
-        //
-        /*BlendFactor, DestinationAlpha, DestinationColor,
-        InverseBlendFactor, InverseDestinationAlpha, InverseDestinationColor, InverseSecondarySourceAlpha,
-        InverseSecondarySourceColor, InverseSourceAlpha, InverseSourceColor, One,
-        SecondarySourceAlpha, SecondarySourceColor, SourceAlpha, SourceAlphaSaturate,
-        SourceColor, Zero*/
+        InverseSecondarySourceAlpha        
     }
 
     public enum WriteMask
-    {
-        //All, Alpha, Blue, Green, Red, None
+    {       
         Red = 1,
         Green = 2,
         Blue = 4,

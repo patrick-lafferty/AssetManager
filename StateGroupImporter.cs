@@ -18,6 +18,8 @@ namespace Importers
     [count - 1 byte]
     [texture slot - 4 bytes]
     [texture binding - x bytes]
+
+    isTransparent: [4 bytes]
       
     shaders:
     [combination - 1 byte] {0 = vertex/pixel, 1 = vertex/geometry/pixel, 2 = vertex/geometry}
@@ -49,7 +51,9 @@ namespace Importers
 
     public class StateGroupImporter
     {
-        const int version = 1;
+        static readonly int version = 3;
+
+        public static int ImporterVersion { get { return version; } }
 
         static char[] getAsciiString(string s)
         {
@@ -87,6 +91,18 @@ namespace Importers
 
                     writer.Write(version);
 
+                    writer.Write((int)asset.TextureBindings.Count);
+
+                    foreach (var binding in asset.TextureBindings)
+                    {
+                        writer.Write((int)binding.Slot);
+                        writeString(writer, binding.Binding);
+                    }
+
+                    var isTransparent = asset.BlendState.RenderTargets.Any(r => r.BlendEnabled);
+
+                    writer.Write((bool)isTransparent);
+
                     if (asset.ShaderCombination == ShaderCombination.VertexPixel)
                     {
                         writer.Write((int)0);
@@ -110,15 +126,7 @@ namespace Importers
                         //writer.Write(asset.GeometryShader.ImportedFilename);                        
                         writeString(writer, asset.VertexShader.ImportedFilename + ".cvs");
                         writeString(writer, asset.GeometryShader.ImportedFilename + ".cgs");
-                    }
-
-                    writer.Write((int)asset.TextureBindings.Count);
-
-                    foreach(var binding in asset.TextureBindings)
-                    {
-                        writer.Write((int)binding.Slot);
-                        writeString(writer, binding.Binding);
-                    }
+                    }                                        
 
                     writer.Write((int)asset.Samplers.Count);
 
@@ -153,6 +161,7 @@ namespace Importers
             }
 
             asset.LastUpdated = DateTime.Now.ToString();
+            asset.ImporterVersion = ImporterVersion;
 
             return true;
         }

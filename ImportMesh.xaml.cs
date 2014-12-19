@@ -23,6 +23,9 @@ namespace Glitch2
     /// </summary>
     public partial class ImportMesh : Window
     {
+        static readonly int version = 4;
+        public static int ImporterVersion { get { return version; } }
+
         internal MeshAsset asset = new MeshAsset();
 
         public string Error { get; set; }
@@ -98,6 +101,7 @@ namespace Glitch2
             else
             {
                 asset.LastUpdated = DateTime.Now.ToString();
+                asset.ImporterVersion = ImporterVersion;
 
                 if (this.IsVisible)
                 {

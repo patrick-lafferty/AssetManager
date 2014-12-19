@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Linq;
 using System.Diagnostics;
+using Importers;
 
 namespace Glitch2
 {
@@ -26,7 +27,7 @@ namespace Glitch2
                     invoke(() =>
                     {
                         viewmodel.LogEvent(error);
-                        MessageBox.Show("Error while trying to update an asset, see log");
+                        //MessageBox.Show("Error while trying to update an asset, see log");
                     });
                 },
                 success =>
@@ -73,6 +74,7 @@ namespace Glitch2
                 mesh.SourceFilename = metadata[3].Split('=')[1].Trim();
                 mesh.Topology = (Topology)Enum.Parse(typeof(Topology), metadata[4].Split('=')[1].Trim());
                 mesh.ImportedFilename = metadata[5].Split('=')[1].Trim();
+                mesh.ImporterVersion = int.Parse(metadata[6].Split('=')[1].Trim());
 
                 meshes.Add(mesh);
             }
@@ -117,6 +119,7 @@ namespace Glitch2
                 texture.LastUpdated = metadata[5].Split('=')[1].Trim();
                 texture.SourceFilenames = metadata[6].Split('=')[1].Trim().Split(',').ToList();                
                 texture.ImportedFilename = metadata[7].Split('=')[1].Trim();
+                texture.ImporterVersion = int.Parse(metadata[8].Split('=')[1].Trim());
 
                 textures.Add(texture);
             }
@@ -175,6 +178,7 @@ namespace Glitch2
                 shader.LastUpdated = metadata[2].Split('=')[1].Trim();
                 shader.SourceFilename = metadata[3].Split('=')[1].Trim();
                 shader.ImportedFilename = metadata[4].Split('=')[1].Trim();
+                shader.ImporterVersion = int.Parse(metadata[5].Split('=')[1].Trim());
 
                 shaders.Add(shader);
             }
@@ -251,8 +255,9 @@ namespace Glitch2
                 material.Description = metadata[0].Split('=')[1].Trim();
                 material.LastUpdated = metadata[1].Split('=')[1].Trim();
                 material.ImportedFilename = metadata[2].Split('=')[1].Trim();
+                material.ImporterVersion = int.Parse(metadata[3].Split('=')[1].Trim());
 
-                var textureLine = metadata[3].Split('=')[1].Trim();
+                var textureLine = metadata[4].Split('=')[1].Trim();
                 var textureConfigs = textureLine.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach(var config in textureConfigs)
@@ -267,7 +272,7 @@ namespace Glitch2
                     material.Textures.Add(texture);
                 }                
 
-                for (int i = 4; i < metadata.Length; i++)
+                for (int i = 5; i < metadata.Length; i++)
                 {
                     var parameterGroupLine = metadata[i].Split('=')[1].Trim();
                     var groupConfigs = parameterGroupLine.Split('#');
@@ -425,8 +430,9 @@ namespace Glitch2
                 stateGroup.PixelShaderId = metadata[4].Split('=')[1].Trim();
                 stateGroup.ShaderCombination = (ShaderCombination)Enum.Parse(typeof(ShaderCombination), metadata[5].Split('=')[1].Trim());
                 stateGroup.ImportedFilename = metadata[6].Split('=')[1].Trim();
+                stateGroup.ImporterVersion = int.Parse(metadata[7].Split('=')[1].Trim());
 
-                var samplerLine = metadata[7].Split('=')[1].Trim();
+                var samplerLine = metadata[8].Split('=')[1].Trim();
                 var samplerConfigs = samplerLine.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var config in samplerConfigs)
@@ -445,7 +451,7 @@ namespace Glitch2
 
                 }
 
-                var textureLine = metadata[8].Split('=')[1].Trim();
+                var textureLine = metadata[9].Split('=')[1].Trim();
                 var textureConfigs = textureLine.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var config in textureConfigs)
@@ -460,7 +466,7 @@ namespace Glitch2
                     stateGroup.TextureBindings.Add(texture);
                 }
 
-                var blendStateLine = metadata[9].Split('=')[1].Trim();
+                var blendStateLine = metadata[10].Split('=')[1].Trim();
                 var blendConfigs = blendStateLine.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var config in blendConfigs)
@@ -645,7 +651,18 @@ namespace Glitch2
                 }
             }
 
-            //materials omitted because they don't have a raw source, they're directly written in glitch
+            //TODO: importerversion for remainder of assets
+
+            foreach(var stateGroup in viewmodel.StateGroups)
+            { 
+                if (stateGroup.ImporterVersion != StateGroupImporter.ImporterVersion)
+                {
+                    if (assetWatcher.TryUpdateAsset(stateGroup))
+                    {
+
+                    }
+                }
+            }
         }
 
         internal void updateDependents(Object asset)
