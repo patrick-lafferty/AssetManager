@@ -137,8 +137,41 @@
                         <DataGridTemplateColumn Header="Source">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <ComboBox ItemsSource="{Binding AvailableTextures, RelativeSource={RelativeSource AncestorType=Window}}"  
-                                              SelectedItem="{Binding Source, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <ComboBox ItemsSource="{Binding AvailableTextures, RelativeSource={RelativeSource AncestorType=Window}}"  
+                                                  SelectedItem="{Binding Source, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name">
+                                            <ComboBox.Style>
+                                                <Style TargetType="ComboBox">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsProcedural}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ComboBox.Style>
+                                        </ComboBox>
+
+                                        <TextBox Text="{Binding SourceId, UpdateSourceTrigger=PropertyChanged}" >
+                                            <TextBox.Style>
+                                                <Style TargetType="TextBox">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsProcedural}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBox.Style>
+                                        </TextBox>
+
+                                        <CheckBox Content="Procedural" Grid.Column="1" IsChecked="{Binding IsProcedural, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>

@@ -30,6 +30,8 @@ namespace Assets
         }
 
         public string SourceId { get; set; }
+
+        public bool IsProcedural { get; set; }
     }
 
     /*

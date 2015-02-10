@@ -77,7 +77,22 @@ namespace AssetManager
             }
             else if (asset is MaterialAsset)
             {
-                //this will never happen, since materials aren't stored in raw format
+                MaterialAsset material = asset as MaterialAsset;
+
+                var result = MaterialImporter.Import(material);
+
+                if (result)
+                {
+                    successMessage = "Successfully updated material: " + material.Name;
+                    material.LastUpdated = DateTime.Now.ToString();
+                    AssetMetadata.createMaterialMetadata(material);
+
+                    return true;
+                }
+                else
+                {
+                    error = "ERROR: Updating material: " + material.Name + " failed!" + Environment.NewLine;
+                }
             }
             else if (asset is StateGroupAsset)
             {

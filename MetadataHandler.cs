@@ -663,6 +663,17 @@ namespace Glitch2
                     }
                 }
             }
+
+            foreach(var material in viewmodel.Materials)
+            {
+                if (material.ImporterVersion != MaterialImporter.ImporterVersion)
+                {
+                    if (assetWatcher.TryUpdateAsset(material))
+                    {
+
+                    }
+                }
+            }
         }
 
         internal void updateDependents(Object asset)

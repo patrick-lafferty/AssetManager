@@ -70,7 +70,7 @@ namespace Glitch2
 
             foreach(var texture in asset.Textures)
             {
-                if (texture.Source == null)
+                if (texture.Source == null && !texture.IsProcedural)
                 {
                     MessageBox.Show("Must specify texture source, its currently blank");
                     return;

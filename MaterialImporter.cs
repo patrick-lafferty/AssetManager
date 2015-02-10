@@ -47,7 +47,7 @@ namespace Importers
 
 	public class MaterialImporter
 	{
-		static readonly int version = 1;
+		static readonly int version = 2;
 
         public static int ImporterVersion { get { return version; } }
 
@@ -92,8 +92,17 @@ namespace Importers
 					foreach (var texture in asset.Textures)
 					{
 						writeString(writer, texture.Binding);
-						writeString(writer, texture.Source.ImportedFilename);
-						writer.Write((byte)0); //todo: NOT IMPLEMENTED YET
+
+                        if (texture.IsProcedural)
+                        {
+                            writeString(writer, texture.SourceId);
+                        }
+                        else
+                        {
+                            writeString(writer, texture.Source.ImportedFilename);
+                        }
+						
+						writer.Write(Convert.ToByte(texture.IsProcedural));
 					}
 
 					writer.Write((int)asset.ParameterGroups.Count);
