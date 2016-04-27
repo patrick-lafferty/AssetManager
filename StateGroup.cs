@@ -179,7 +179,7 @@ namespace Assets
             }
         }
 
-        string lastUpdated;
+        /*string lastUpdated;
         public string LastUpdated
         {
             get
@@ -191,7 +191,7 @@ namespace Assets
                 lastUpdated = value;
                 NotifyPropertyChanged("LastUpdated");
             }
-        }
+        }*/
 
         public StateGroupAsset()
         {

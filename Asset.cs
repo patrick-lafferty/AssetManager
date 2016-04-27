@@ -32,14 +32,14 @@ namespace Assets
             }
         }
 
-        DateTime lastUpdateDate;
-        public DateTime LastUpdateDate
+        DateTime lastUpdated;
+        public DateTime LastUpdated
         {
-            get { return lastUpdateDate; }
+            get { return lastUpdated; }
             set
             {
-                lastUpdateDate = value;
-                NotifyPropertyChanged("LastUpdateDate");
+                lastUpdated = value;
+                NotifyPropertyChanged("LastUpdated");
             }
         }
 

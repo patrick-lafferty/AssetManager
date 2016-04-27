@@ -56,7 +56,7 @@ namespace Assets
             }
         }
 
-        string lastUpdated;
+        /*string lastUpdated;
         public string LastUpdated
         {
             get { return lastUpdated; }
@@ -65,7 +65,7 @@ namespace Assets
                 lastUpdated = value;
                 NotifyPropertyChanged("LastUpdated");
             }
-        }
+        }*/
 
         string filename;
         public string SourceFilename

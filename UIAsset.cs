@@ -20,7 +20,7 @@ namespace Assets
             }
         }
 
-        string lastUpdated;
+        /*string lastUpdated;
         public string LastUpdated
         {
             get { return lastUpdated; }
@@ -29,7 +29,7 @@ namespace Assets
                 lastUpdated = value;
                 NotifyPropertyChanged("LastUpdated");
             }
-        }              
+        }*/            
 
         public string ImportedFilename { get; set; }
 

@@ -100,7 +100,7 @@ namespace Glitch2
             }
             else
             {
-                asset.LastUpdated = DateTime.Now.ToString();
+                asset.LastUpdated = DateTime.Now;//.ToString();
                 asset.ImporterVersion = ImporterVersion;
 
                 if (this.IsVisible)

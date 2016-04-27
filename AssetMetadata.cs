@@ -10,6 +10,7 @@ namespace AssetManager
 {
     static class AssetMetadata
     {
+        //TODO: hardcoded path
         static string MetadataPath = @"C:\ProjectStacks\RawAssets\Metadata\";
 
         static void deleteMetadata(Asset asset, string path)
@@ -25,7 +26,7 @@ namespace AssetManager
             var metadata = new StringBuilder();
             metadata.AppendLine("Description= " + mesh.Description)
                 .AppendLine("VertexFormat= " + mesh.VertexFormat)
-                .AppendLine("LastUpdated= " + mesh.LastUpdated)
+                .AppendLine("LastUpdated= " + mesh.LastUpdated.ToString("o"))
                 .AppendLine("SourceFilename= " + mesh.SourceFilename)
                 .AppendLine("Topology= " + mesh.Topology.ToString())
                 .AppendLine("ImportedFilename= " + mesh.ImportedFilename)
@@ -49,7 +50,7 @@ namespace AssetManager
                 .AppendLine("Height= " + texture.Height)
                 .AppendLine("Format= " + texture.Format)
                 .AppendLine("ChannelMappings=" + mappings)
-                .AppendLine("LastUpdated= " + texture.LastUpdated)
+                .AppendLine("LastUpdated= " + texture.LastUpdated.ToString("o"))
                 .AppendLine("SourceFilenames= " + string.Join(",", texture.SourceFilenames))
                 .AppendLine("ImportedFilename= " + texture.ImportedFilename)
                 .AppendLine("ImporterVersion= " + texture.ImporterVersion);
@@ -67,7 +68,7 @@ namespace AssetManager
             var metadata = new StringBuilder();
             metadata.AppendLine("Description= " + shader.Description)
                 .AppendLine("Combination= " + shader.Combination.ToString())
-                .AppendLine("LastUpdated= " + shader.LastUpdated)
+                .AppendLine("LastUpdated= " + shader.LastUpdated.ToString("o"))
                 .AppendLine("SourceFilename= " + shader.SourceFilename)
                 .AppendLine("ImportedFilename= " + shader.ImportedFilename)
                 .AppendLine("ImporterVersion= " + shader.ImporterVersion);
@@ -84,7 +85,7 @@ namespace AssetManager
         {
             var metadata = new StringBuilder();
             metadata.AppendLine("Description= " + material.Description)
-                .AppendLine("LastUpdated= " + material.LastUpdated)
+                .AppendLine("LastUpdated= " + material.LastUpdated.ToString("o"))
                 .AppendLine("ImportedFilename= " + material.ImportedFilename)
                 .AppendLine("ImporterVersion= " + material.ImporterVersion);
 
@@ -139,7 +140,7 @@ namespace AssetManager
         {
             var metadata = new StringBuilder();
             metadata.AppendLine("Description= " + stateGroup.Description)
-                .AppendLine("LastUpdated= " + stateGroup.LastUpdated)
+                .AppendLine("LastUpdated= " + stateGroup.LastUpdated.ToString("o"))
                 .AppendLine("VertexShader= " + stateGroup.VertexShaderId)
                 .AppendLine("GeometryShader= " + stateGroup.GeometryShaderId)
                 .AppendLine("PixelShader= " + stateGroup.PixelShaderId)

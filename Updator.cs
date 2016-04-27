@@ -27,7 +27,7 @@ namespace AssetManager
                 {
                     successMessage = "Successfully updated mesh: " + mesh.Name;
 
-                    mesh.LastUpdated = DateTime.Now.ToString();
+                    mesh.LastUpdated = DateTime.Now;//.ToString();
                     AssetMetadata.createMeshMetadata(mesh);
 
                     return true;
@@ -46,7 +46,7 @@ namespace AssetManager
                 if (string.IsNullOrEmpty(result))
                 {
                     successMessage = "Successfully updated texture: " + texture.Name;
-                    texture.LastUpdated = DateTime.Now.ToString();
+                    texture.LastUpdated = DateTime.Now;//.ToString();
                     AssetMetadata.createTextureMetadata(texture);
 
                     return true;
@@ -65,7 +65,7 @@ namespace AssetManager
                 if (string.IsNullOrEmpty(result))
                 {
                     successMessage = "Successfully updated shader: " + shader.Name;
-                    shader.LastUpdated = DateTime.Now.ToString();
+                    shader.LastUpdated = DateTime.Now;//.ToString();
                     AssetMetadata.createShaderMetadata(shader);
 
                     return true;
@@ -84,7 +84,7 @@ namespace AssetManager
                 if (result)
                 {
                     successMessage = "Successfully updated material: " + material.Name;
-                    material.LastUpdated = DateTime.Now.ToString();
+                    material.LastUpdated = DateTime.Now;//.ToString();
                     AssetMetadata.createMaterialMetadata(material);
 
                     return true;
@@ -103,7 +103,7 @@ namespace AssetManager
                 if (result)
                 {
                     successMessage = "Successfully updated state group: " + stateGroup.Name;
-                    stateGroup.LastUpdated = DateTime.Now.ToString();
+                    stateGroup.LastUpdated = DateTime.Now;//.ToString();
                     AssetMetadata.createStateGroupMetadata(stateGroup);
 
                     return true;
