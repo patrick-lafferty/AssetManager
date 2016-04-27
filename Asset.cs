@@ -32,6 +32,18 @@ namespace Assets
             }
         }
 
+        DateTime lastUpdateDate;
+        public DateTime LastUpdateDate
+        {
+            get { return lastUpdateDate; }
+            set
+            {
+                lastUpdateDate = value;
+                NotifyPropertyChanged("LastUpdateDate");
+            }
+        }
+
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void NotifyPropertyChanged(string prop)

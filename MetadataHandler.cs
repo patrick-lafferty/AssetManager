@@ -7,6 +7,7 @@ using System.Windows;
 using System.Linq;
 using System.Diagnostics;
 using Importers;
+using AssetManager;
 
 namespace Glitch2
 {
@@ -15,12 +16,16 @@ namespace Glitch2
         string metadataPath = @"C:\ProjectStacks\RawAssets\Metadata\";
 
         RawAssetWatcher assetWatcher;
-        AssetViewmodel viewmodel;        
+        AssetViewmodel viewmodel;
+
+        Action<string> displayError;
 
         internal MetadataHandler(Action<Action> invoke, AssetViewmodel viewmodel)
         {
             this.viewmodel = viewmodel;
             
+            displayError = error => invoke(() => viewmodel.LogEvent(error));
+
             assetWatcher = new RawAssetWatcher(viewmodel,
                 error =>
                 {
@@ -582,10 +587,47 @@ namespace Glitch2
              */
         internal void CheckForOfflineAssetUpdates()
         {
+            Func<string, DateTime?> parseWeirdFormatDate =
+                date =>
+                {
+                    var splitSpaces = date.Split(' ');
+                    var splitSlashes = splitSpaces[0].Split('/');
+                    var fixedDate = string.Format("{0}-{1}-{2} {3} {4}", splitSlashes[2], splitSlashes[1], splitSlashes[0], splitSpaces[1], splitSpaces[2]);
+
+                    DateTime parsedDate;
+
+                    if (!DateTime.TryParse(fixedDate, out parsedDate))
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        return parsedDate;
+                    }
+                };
+
             foreach (var mesh in viewmodel.Meshes)
             {
                 var writeTime = System.IO.File.GetLastWriteTime(mesh.SourceFilename);
-                var lastKnownTime = DateTime.Parse(mesh.LastUpdated);
+
+                //var lastKnownTime = DateTime.Parse(mesh.LastUpdated);
+                DateTime lastKnownTime;
+                
+                if (mesh.LastUpdated.Contains("/") || !DateTime.TryParse(mesh.LastUpdated, null, System.Globalization.DateTimeStyles.RoundtripKind, out lastKnownTime))
+                {
+                    var date = parseWeirdFormatDate(mesh.LastUpdated);
+                    if (date.HasValue)
+                    {
+                        lastKnownTime = date.Value;
+                        mesh.LastUpdated = lastKnownTime.ToString("o");
+                        AssetMetadata.createMeshMetadata(mesh);
+                    }
+                    else
+                    {
+                        displayError("Unable to parse mesh.LastUpdated for " + mesh.Name);
+                        continue;
+                    }                    
+                }
 
                 if (writeTime > lastKnownTime)
                 {
@@ -600,8 +642,24 @@ namespace Glitch2
 
             foreach (var texture in viewmodel.Textures)
             {
-                //var writeTime = System.IO.File.GetLastWriteTime(texture.SourceFilename);
-                var lastKnownTime = DateTime.Parse(texture.LastUpdated);
+                //var lastKnownTime = DateTime.Parse(texture.LastUpdated);
+                DateTime lastKnownTime;
+
+                if (texture.LastUpdated.Contains("/") || !DateTime.TryParse(texture.LastUpdated, null, System.Globalization.DateTimeStyles.RoundtripKind, out lastKnownTime))
+                {
+                    var date = parseWeirdFormatDate(texture.LastUpdated);
+                    if (date.HasValue)
+                    {
+                        lastKnownTime = date.Value;
+                        texture.LastUpdated = lastKnownTime.ToString("o");
+                        AssetMetadata.createTextureMetadata(texture);
+                    }
+                    else
+                    {
+                        displayError("Unable to parse texture.LastUpdated for " + texture.Name);
+                        continue;
+                    }
+                }
 
                 var needsUpdate = texture.SourceFilenames.Any(s => System.IO.File.GetLastWriteTime(s) > lastKnownTime);
 
@@ -620,7 +678,22 @@ namespace Glitch2
             foreach (var script in viewmodel.Scripts)
             {
                 var writeTime = System.IO.File.GetLastWriteTime(script.SourceFilename);
-                var lastKnownTime = DateTime.Parse(script.LastUpdated);
+                //var lastKnownTime = DateTime.Parse(script.LastUpdated);
+                DateTime lastKnownTime;
+
+                if (script.LastUpdated.Contains("/") || !DateTime.TryParse(script.LastUpdated, null, System.Globalization.DateTimeStyles.RoundtripKind, out lastKnownTime))
+                {
+                    var date = parseWeirdFormatDate(script.LastUpdated);
+                    if (date.HasValue)
+                    {
+                        lastKnownTime = date.Value;
+                    }
+                    else
+                    {
+                        displayError("Unable to parse script.LastUpdated for " + script.Name);
+                        continue;
+                    }
+                }
 
                 if (writeTime > lastKnownTime)
                 {
@@ -638,7 +711,24 @@ namespace Glitch2
             foreach (var shader in viewmodel.Shaders)
             {
                 var writeTime = System.IO.File.GetLastWriteTime(shader.SourceFilename);
-                var lastKnownTime = DateTime.Parse(shader.LastUpdated);
+                //var lastKnownTime = DateTime.Parse(shader.LastUpdated);
+                DateTime lastKnownTime;
+
+                if (shader.LastUpdated.Contains("/") || !DateTime.TryParse(shader.LastUpdated, null, System.Globalization.DateTimeStyles.RoundtripKind, out lastKnownTime))
+                {
+                    var date = parseWeirdFormatDate(shader.LastUpdated);
+                    if (date.HasValue)
+                    {
+                        lastKnownTime = date.Value;
+                        shader.LastUpdated = lastKnownTime.ToString("o");
+                        AssetMetadata.createShaderMetadata(shader);
+                    }
+                    else
+                    {
+                        displayError("Unable to parse shader.LastUpdated for " + shader.Name);
+                        continue;
+                    }
+                }
 
                 if (writeTime > lastKnownTime)
                 {
@@ -654,7 +744,25 @@ namespace Glitch2
             //TODO: importerversion for remainder of assets
 
             foreach(var stateGroup in viewmodel.StateGroups)
-            { 
+            {
+                DateTime lastKnownTime;
+
+                if (stateGroup.LastUpdated.Contains("/") || !DateTime.TryParse(stateGroup.LastUpdated, null, System.Globalization.DateTimeStyles.RoundtripKind, out lastKnownTime))
+                {
+                    var date = parseWeirdFormatDate(stateGroup.LastUpdated);
+                    if (date.HasValue)
+                    {
+                        lastKnownTime = date.Value;
+                        stateGroup.LastUpdated = lastKnownTime.ToString("o");
+                        AssetMetadata.createStateGroupMetadata(stateGroup);
+                    }
+                    else
+                    {
+                        displayError("Unable to parse stateGroup.LastUpdated for " + stateGroup.Name);
+                        continue;
+                    }
+                }
+
                 if (stateGroup.ImporterVersion != StateGroupImporter.ImporterVersion)
                 {
                     if (assetWatcher.TryUpdateAsset(stateGroup))
@@ -666,6 +774,24 @@ namespace Glitch2
 
             foreach(var material in viewmodel.Materials)
             {
+                DateTime lastKnownTime;
+
+                if (material.LastUpdated.Contains("/") || !DateTime.TryParse(material.LastUpdated, null, System.Globalization.DateTimeStyles.RoundtripKind, out lastKnownTime))
+                {
+                    var date = parseWeirdFormatDate(material.LastUpdated);
+                    if (date.HasValue)
+                    {
+                        lastKnownTime = date.Value;
+                        material.LastUpdated = lastKnownTime.ToString("o");
+                        AssetMetadata.createMaterialMetadata(material);
+                    }
+                    else
+                    {
+                        displayError("Unable to parse material.LastUpdated for " + material.Name);
+                        continue;
+                    }
+                }
+
                 if (material.ImporterVersion != MaterialImporter.ImporterVersion)
                 {
                     if (assetWatcher.TryUpdateAsset(material))
@@ -767,7 +893,10 @@ namespace Glitch2
             {
                 foreach (var texture in material.Textures)
                 {
-                    var source = viewmodel.Textures.First(t => t.Name == texture.SourceId);
+                    var source = viewmodel.Textures.FirstOrDefault(t => t.Name == texture.SourceId);
+
+                    if (source == null)
+                        continue;
 
                     Debug.Assert(source != null, "Material: " + material.Name + " depends on texture: " +
                         texture.SourceId + ", but it is no longer in the database! (this shouldnt happen!");
