@@ -100,7 +100,7 @@ namespace Glitch2
             }
             else
             {
-                asset.LastUpdated = DateTime.Now;//.ToString();
+                asset.LastUpdated = DateTime.Now;
                 asset.ImporterVersion = ImporterVersion;
 
                 if (this.IsVisible)
@@ -109,20 +109,7 @@ namespace Glitch2
                 }
                 
                 this.Close();                
-            }      
-            /*var result = MeshImporter.Import(asset, out error);
-
-            if (result)
-            {
-                this.DialogResult = true;
-                this.Close();
-            }
-            else
-            {
-                status.Text = "ERROR: could not import mesh: " + asset.Name
-                    + Environment.NewLine + error;
-                Error = status.Text;
-            }*/
+            }                  
         }
 
         private void Open(object sender, RoutedEventArgs e)

@@ -160,7 +160,7 @@ namespace Importers
                 }
             }
 
-            asset.LastUpdated = DateTime.Now;//.ToString();
+            asset.LastUpdated = DateTime.Now;
             asset.ImporterVersion = ImporterVersion;
 
             return true;

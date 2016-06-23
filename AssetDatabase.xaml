@@ -8,6 +8,21 @@
              >
     <Grid>
 
+        <Grid.Background>
+            <LinearGradientBrush>
+
+                <GradientStop 
+                    Color="SkyBlue" 
+                    Offset="0"/>
+
+                <GradientStop 
+                    Color="AliceBlue" 
+                    Offset="1"/>
+
+            </LinearGradientBrush>
+
+        </Grid.Background>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition />

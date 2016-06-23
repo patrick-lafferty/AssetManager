@@ -157,7 +157,7 @@ namespace Glitch2
             }
             else
             {
-                asset.LastUpdated = DateTime.Now;//.ToString();
+                asset.LastUpdated = DateTime.Now;
                 asset.ImporterVersion = ImporterVersion;
 
                 using (var stream = File.OpenRead(asset.ImportedFilename))

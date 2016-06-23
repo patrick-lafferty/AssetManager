@@ -176,31 +176,7 @@ namespace Assets
         }
 
         public List<Glitch2.ImportTexture.ChannelMapping> ChannelMappings { get; set; }
-
-        /*string lastUpdated;
-        public string LastUpdated
-        {
-            get { return lastUpdated; }
-            set
-            {
-                lastUpdated = value;
-                NotifyPropertyChanged("LastUpdated");
-            }
-        }*/
-
-        /*string filename;
-        public string SourceFilename
-        {
-            get
-            {
-                return filename;
-            }
-            set
-            {
-                filename = value;
-                NotifyPropertyChanged("SourceFilename");
-            }
-        }*/
+               
         public List<string> SourceFilenames { get; set; }
 
         string importedFilename;

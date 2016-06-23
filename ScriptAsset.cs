@@ -33,20 +33,6 @@ namespace Assets
             }
         }
 
-        /*string lastUpdated;
-        public string LastUpdated
-        {
-            get
-            {
-                return lastUpdated;
-            }
-            set
-            {
-                lastUpdated = value;
-                NotifyPropertyChanged("LastUpdated");
-            }
-        }*/
-
         string filename;
         public string SourceFilename
         {

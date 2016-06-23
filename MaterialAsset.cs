@@ -50,21 +50,7 @@ namespace Assets
                 NotifyPropertyChanged("Description");
             }
         }
-
-        /*string lastUpdated;
-        public string LastUpdated
-        {
-            get
-            {
-                return lastUpdated;
-            }
-            set
-            {
-                lastUpdated = value;
-                NotifyPropertyChanged("LastUpdated");
-            }
-        }*/
-
+     
         public MaterialAsset()
         {
             Textures = new ObservableCollection<Texture>();

@@ -20,17 +20,6 @@ namespace Assets
             }
         }
 
-        /*string lastUpdated;
-        public string LastUpdated
-        {
-            get { return lastUpdated; }
-            set
-            {
-                lastUpdated = value;
-                NotifyPropertyChanged("LastUpdated");
-            }
-        }*/            
-
         public string ImportedFilename { get; set; }
 
         public string DefaultMesh { get; set; }

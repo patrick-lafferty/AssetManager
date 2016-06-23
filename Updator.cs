@@ -103,7 +103,7 @@ namespace AssetManager
                 if (result)
                 {
                     successMessage = "Successfully updated state group: " + stateGroup.Name;
-                    stateGroup.LastUpdated = DateTime.Now;//.ToString();
+                    stateGroup.LastUpdated = DateTime.Now;
                     AssetMetadata.createStateGroupMetadata(stateGroup);
 
                     return true;

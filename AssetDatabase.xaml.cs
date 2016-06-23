@@ -3,25 +3,11 @@ using Assets;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Glitch2
 {
-    /// <summary>
-    /// Interaction logic for AssetDatabase.xaml
-    /// </summary>
     public partial class AssetManager : Window
     {        
         AssetViewmodel viewmodel;        
@@ -38,7 +24,6 @@ namespace Glitch2
 
             metadataHandler = new MetadataHandler(invoke, viewmodel);
             setup();
-
 
             this.Closed += (a, b) =>
             {
@@ -103,20 +88,10 @@ namespace Glitch2
                     import.asset.Name = oldName;
 
                     //we changed the name, delete the old asset then create a new one
-                    /*var deleteAssetEvent = new ToolEvents.DeleteAssetEvent { Asset = import.asset, AssetType = ToolEvents.AssetType.Mesh };
-                    client.ProcessEvent(deleteAssetEvent);*/
                     System.IO.File.Delete(oldImported);
 
                     import.asset.Name = newName;
-
-                    /*var newAssetEvent = new ToolEvents.NewAssetEvent() { Asset = import.asset, AssetType = ToolEvents.AssetType.Mesh };
-                    client.ProcessEvent(newAssetEvent);*/
                 }
-                else
-                {
-                    /*var updateAssetEvent = new ToolEvents.UpdateAssetEvent { Asset = import.asset, AssetType = ToolEvents.AssetType.Mesh };
-                    client.ProcessEvent(updateAssetEvent);*/
-                }                
             }
         }   
 
@@ -157,7 +132,6 @@ namespace Glitch2
 
             string oldName = viewmodel.SelectedTexture.Name;
             string oldImported = viewmodel.SelectedTexture.ImportedFilename;
-            //string oldSource = viewmodel.SelectedTexture.SourceFilename;
 
             ImportTexture import = new ImportTexture();
             import.setAsset(viewmodel.SelectedTexture);
@@ -174,19 +148,9 @@ namespace Glitch2
                     import.asset.Name = oldName;
 
                     //we changed the name, delete the old asset then create a new one
-                    /*var deleteAssetEvent = new ToolEvents.DeleteAssetEvent { Asset = import.asset, AssetType = ToolEvents.AssetType.Texture };
-                    client.ProcessEvent(deleteAssetEvent);*/
                     System.IO.File.Delete(oldImported);
 
                     import.asset.Name = newName;
-
-                    /*var newAssetEvent = new ToolEvents.NewAssetEvent() { Asset = import.asset, AssetType = ToolEvents.AssetType.Texture };
-                    client.ProcessEvent(newAssetEvent);*/
-                }
-                else
-                {
-                    /*var updateAssetEvent = new ToolEvents.UpdateAssetEvent { Asset = import.asset, AssetType = ToolEvents.AssetType.Texture };
-                    client.ProcessEvent(updateAssetEvent);*/
                 }
             }
         }
@@ -246,10 +210,6 @@ namespace Glitch2
                     viewmodel.ScriptDependencies[dependency.Name].Add(import.asset);
                 }
 
-                /*var newAssetEvent = new ToolEvents.NewAssetEvent() { Asset = import.asset, AssetType = ToolEvents.AssetType.Script };
-
-                client.ProcessEvent(newAssetEvent);*/
-
                 viewmodel.Scripts.Add(import.asset);
             }
             else
@@ -297,20 +257,13 @@ namespace Glitch2
                     import.asset.Name = oldName;
 
                     //we changed the name, delete the old asset then create a new one
-                    /*var deleteAssetEvent = new ToolEvents.DeleteAssetEvent { Asset = import.asset, AssetType = ToolEvents.AssetType.Script };
-                    client.ProcessEvent(deleteAssetEvent);*/
                     System.IO.File.Delete(oldImported);
                     System.IO.File.Delete(System.IO.Path.ChangeExtension(oldImported, "pdb"));
 
                     import.asset.Name = newName;
-
-                    /*var newAssetEvent = new ToolEvents.NewAssetEvent() { Asset = import.asset, AssetType = ToolEvents.AssetType.Script };
-                    client.ProcessEvent(newAssetEvent);*/
                 }
                 else
                 {
-                    /*var updateAssetEvent = new ToolEvents.UpdateAssetEvent { Asset = import.asset, AssetType = ToolEvents.AssetType.Script };
-                    client.ProcessEvent(updateAssetEvent);*/
                     metadataHandler.updateDependents(viewmodel.SelectedScript);
                 }
 
@@ -356,10 +309,6 @@ namespace Glitch2
                     kvp.Value.RemoveAll(script => script == viewmodel.SelectedScript);
                 }
 
-                /*var deleteAssetEvent = new ToolEvents.DeleteAssetEvent() { Asset = viewmodel.SelectedScript, AssetType = ToolEvents.AssetType.Script };
-
-                client.ProcessEvent(deleteAssetEvent);*/
-
                 System.IO.File.Delete(viewmodel.SelectedScript.ImportedFilename);
                 System.IO.File.Delete(System.IO.Path.ChangeExtension(viewmodel.SelectedScript.ImportedFilename, ".pdb"));
                 viewmodel.Scripts.Remove(viewmodel.SelectedScript);                
@@ -374,9 +323,6 @@ namespace Glitch2
 
             if (result == true)
             {
-                /*var newAssetEvent = new ToolEvents.NewAssetEvent() { Asset = import.asset, AssetType = ToolEvents.AssetType.Shader };
-
-                client.ProcessEvent(newAssetEvent);*/
                 AssetMetadata.createShaderMetadata(import.asset);
                 
                 viewmodel.Shaders.Add(import.asset);
@@ -414,19 +360,9 @@ namespace Glitch2
                     import.asset.Name = oldName;
 
                     //we changed the name, delete the old asset then create a new one
-                    /*var deleteAssetEvent = new ToolEvents.DeleteAssetEvent { Asset = import.asset, AssetType = ToolEvents.AssetType.Shader };
-                    client.ProcessEvent(deleteAssetEvent);*/
                     System.IO.File.Delete(oldImported);
 
                     import.asset.Name = newName;
-
-                    /*var newAssetEvent = new ToolEvents.NewAssetEvent() { Asset = import.asset, AssetType = ToolEvents.AssetType.Shader };
-                    client.ProcessEvent(newAssetEvent);*/
-                }
-                else
-                {
-                    /*var updateAssetEvent = new ToolEvents.UpdateAssetEvent { Asset = import.asset, AssetType = ToolEvents.AssetType.Shader };
-                    client.ProcessEvent(updateAssetEvent);*/
                 }
             }
             else
@@ -449,7 +385,6 @@ namespace Glitch2
 
             if (result == MessageBoxResult.Yes)
             {
-
                 //check to see if any state group depends on this shader
                 var dependencyChecker = new DependencyChecker();
                 dependencyChecker.Dependencies =
@@ -467,10 +402,6 @@ namespace Glitch2
                 }
                 else
                 {
-                    /*var deleteAssetEvent = new ToolEvents.DeleteAssetEvent() { Asset = viewmodel.SelectedShader, AssetType = ToolEvents.AssetType.Shader };
-
-                    client.ProcessEvent(deleteAssetEvent);*/
-
                     AssetMetadata.deleteShaderMetadata(viewmodel.SelectedShader);
 
                     System.IO.File.Delete(viewmodel.SelectedShader.ImportedFilename);
@@ -572,9 +503,6 @@ namespace Glitch2
 
             if (result == MessageBoxResult.Yes)
             {
-                /*var deleteAssetEvent = new ToolEvents.DeleteAssetEvent() { Asset = viewmodel.SelectedMaterial, AssetType = ToolEvents.AssetType.Material };
-
-                client.ProcessEvent(deleteAssetEvent);*/
                 AssetMetadata.deleteMaterialMetadata(viewmodel.SelectedMaterial);
 
                 System.IO.File.Delete(viewmodel.SelectedMaterial.ImportedFilename);
@@ -657,10 +585,6 @@ namespace Glitch2
 
             if (result == MessageBoxResult.Yes)
             {
-                /*var deleteAssetEvent = new ToolEvents.DeleteAssetEvent() { Asset = viewmodel.SelectedUI, AssetType = ToolEvents.AssetType.UI };
-
-                client.ProcessEvent(deleteAssetEvent);*/
-
                 System.IO.File.Delete(viewmodel.SelectedUI.ImportedFilename);
                 viewmodel.UIs.Remove(viewmodel.SelectedUI);
             }
@@ -674,15 +598,8 @@ namespace Glitch2
             
             if (result == true)
             {                
-                /*var newAssetEvent = new ToolEvents.NewAssetEvent() { Asset = import.asset, AssetType = ToolEvents.AssetType.Font };
-
-                client.ProcessEvent(newAssetEvent);*/
 
                 viewmodel.Fonts.Add(import.asset);
-            }
-            else
-            {
-                
             }
         }
 
@@ -709,19 +626,9 @@ namespace Glitch2
                     import.asset.Name = oldName;
 
                     //we changed the name, delete the old asset then create a new one
-                    /*var deleteAssetEvent = new ToolEvents.DeleteAssetEvent { Asset = import.asset, AssetType = ToolEvents.AssetType.Font };
-                    client.ProcessEvent(deleteAssetEvent);*/
                     System.IO.File.Delete(oldImported);
 
                     import.asset.Name = newName;
-
-                    /*var newAssetEvent = new ToolEvents.NewAssetEvent() { Asset = import.asset, AssetType = ToolEvents.AssetType.Font };
-                    client.ProcessEvent(newAssetEvent);*/
-                }
-                else
-                {
-                    /*var updateAssetEvent = new ToolEvents.UpdateAssetEvent { Asset = import.asset, AssetType = ToolEvents.AssetType.Font };
-                    client.ProcessEvent(updateAssetEvent);*/
                 }
             }
         }
@@ -737,10 +644,6 @@ namespace Glitch2
 
             if (result == MessageBoxResult.Yes)
             {                
-                /*var deleteAssetEvent = new ToolEvents.DeleteAssetEvent() { Asset = viewmodel.SelectedFont, AssetType = ToolEvents.AssetType.Font };
-
-                client.ProcessEvent(deleteAssetEvent);*/
-
                 System.IO.File.Delete(viewmodel.SelectedFont.ImportedFilename);
                 viewmodel.Fonts.Remove(viewmodel.SelectedFont);
             }

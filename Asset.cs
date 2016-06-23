@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Assets
-{    
+{
     public class Asset : INotifyPropertyChanged
     {      
         string name;
@@ -42,7 +37,6 @@ namespace Assets
                 NotifyPropertyChanged("LastUpdated");
             }
         }
-
 
         public event PropertyChangedEventHandler PropertyChanged;
 

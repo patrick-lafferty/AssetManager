@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Drawing;
-
-namespace Assets
+﻿namespace Assets
 {
     public class FontAsset : Asset
     {
@@ -21,17 +13,6 @@ namespace Assets
                 NotifyPropertyChanged("Description");
             }
         }
-
-        /*string lastUpdated;
-        public string LastUpdated
-        {
-            get { return lastUpdated; }
-            set
-            {
-                lastUpdated = value;
-                NotifyPropertyChanged("LastUpdated");
-            }
-        }*/
 
         public string FontName { get; set; }
 
