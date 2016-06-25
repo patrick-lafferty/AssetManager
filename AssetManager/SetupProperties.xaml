@@ -1,0 +1,62 @@
+﻿<Window x:Class="AssetManager.SetupProperties"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AssetManager"
+        mc:Ignorable="d"
+        Title="SetupProperties" Height="400" Width="500"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+
+        <Grid.Background>
+            <LinearGradientBrush>
+
+                <GradientStop 
+                    Color="SkyBlue" 
+                    Offset="0"/>
+
+                <GradientStop 
+                    Color="AliceBlue" 
+                    Offset="1"/>
+
+            </LinearGradientBrush>
+
+        </Grid.Background>
+
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition />
+            <ColumnDefinition Width="20"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Text="Please enter the following settings" Grid.ColumnSpan="2"/>
+        <TextBlock Text="ImportedAssetsPath" Grid.Row="1" ToolTip="The path to save imported assets to"/>
+        <TextBox Text="{Binding ImportedAssetsPath, UpdateSourceTrigger=PropertyChanged}" 
+                     Grid.Row="1" Grid.Column="1" />
+        <Button Content="..." Click="SetImportedAssetsPath" Grid.Row="1" Grid.Column="2"/>
+
+        <TextBlock Text="MetadataPath" Grid.Row="2" ToolTip="The path to save asset metadata to"/>
+        <TextBox Text="{Binding MetadataPath, UpdateSourceTrigger=PropertyChanged}" 
+                     Grid.Row="2" Grid.Column="1" />
+        <Button Content="..." Click="SetMetadataPath" Grid.Row="2" Grid.Column="2"/>
+
+        <TextBlock Text="RawAssetsPath" Grid.Row="3" ToolTip="The path path raw assets to import are found"/>
+        <TextBox Text="{Binding RawAssetsPath, UpdateSourceTrigger=PropertyChanged}" 
+                     Grid.Row="3" Grid.Column="1" />
+        <Button Content="..." Click="SetRawAssetsPath" Grid.Row="3" Grid.Column="2"/>
+
+        <Button Content="Save Properties" Grid.Row="5" Click="SaveProperties"/>
+
+    </Grid>
+</Window>
