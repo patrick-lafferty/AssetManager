@@ -1,0 +1,28 @@
+syntax: glob
+
+diff.txt
+
+bin/
+obj/
+Properties/
+Debug/
+Release/
+
+*.db
+*.user
+*.suo
+*.orig
+*.lastbuildstate
+*.log
+*.obj
+*.pch
+*.tlog
+*.pdb
+*.res
+*.sdf
+*.vcxproj
+
+Intellisense Workaround/
+ipch/
+*.filters
+*.opensdf
