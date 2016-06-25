@@ -38,7 +38,6 @@ namespace AssetManager
 
         internal AssetManagerUI()
         {
-            MessageBox.Show(Environment.CurrentDirectory);
             var setupProperties = new SetupProperties();
             var result = setupProperties.ShowDialog();
 

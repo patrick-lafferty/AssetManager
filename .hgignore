@@ -4,10 +4,14 @@ diff.txt
 
 bin/
 obj/
-Properties/
 Debug/
 Release/
+*tlog/
 
+*.tlog
+*.idb
+*.pdb
+*.opendb
 *.db
 *.user
 *.suo
