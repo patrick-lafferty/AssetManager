@@ -1,0 +1,1757 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Glitch2"
+                    x:Class="Glitch2.DataTemplates">
+
+    <local:PropertyTemplateSelector x:Key="PropertyTemplateSelector" />
+    <local:ParameterTemplateSelector x:Key="ParameterTemplateSelector" />
+
+    <DataTemplate x:Key="ScalarTemplate">
+        <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"/>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Vector2Template">
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="x:"/>
+            <TextBox Text="{Binding X, UpdateSourceTrigger=PropertyChanged}" />
+
+            <TextBlock Text="y:"/>
+            <TextBox Text="{Binding Y, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Vector3Template">
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="x:"/>
+            <TextBox Text="{Binding X, UpdateSourceTrigger=PropertyChanged}" />
+
+            <TextBlock Text="y:"/>
+            <TextBox Text="{Binding Y, UpdateSourceTrigger=PropertyChanged}" />
+
+            <TextBlock Text="z:"/>
+            <TextBox Text="{Binding Z, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Vector4Template">
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="x:"/>
+            <TextBox Text="{Binding X, UpdateSourceTrigger=PropertyChanged}" />
+
+            <TextBlock Text="y:"/>
+            <TextBox Text="{Binding Y, UpdateSourceTrigger=PropertyChanged}" />
+
+            <TextBlock Text="z:"/>
+            <TextBox Text="{Binding Z, UpdateSourceTrigger=PropertyChanged}" />
+
+            <TextBlock Text="w:"/>
+            <TextBox Text="{Binding W, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Key="ArrayTemplate">
+        <ListBox ItemsSource="{Binding Elements}" 
+                 ItemTemplate="{StaticResource ResourceKey=Vector4Template}"
+                 SelectedItem="{Binding SelectedElement, UpdateSourceTrigger=PropertyChanged}"
+                 Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
+            <ListBox.ContextMenu>
+                <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                    <MenuItem Header="Add array element">
+                        <MenuItem Header="float4" Command="{Binding AddArrayParameterElementFloat4}"/>
+                        <MenuItem Header="int4" Command="{Binding AddArrayParameterElementInt4}"/>
+                        <MenuItem Header="bool4" Command="{Binding AddArrayParameterElementBool4}"/>
+                    </MenuItem>
+                    <MenuItem Header="Remove selected array element" Command="{Binding RemoveArrayParameterElement}" />
+                </ContextMenu>
+            </ListBox.ContextMenu>
+        </ListBox>
+    </DataTemplate>
+
+    <DataTemplate  x:Key="TransformTemplate">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="125"/>
+                <ColumnDefinition Width="125"/>
+                <ColumnDefinition Width="125"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="Transform" Grid.ColumnSpan="2"/>
+
+            <TextBlock Text="X" HorizontalAlignment="Center"
+                                Grid.Column="2"/>
+
+            <TextBlock Text="Y" HorizontalAlignment="Center"
+                                Grid.Column="3"/>
+
+            <TextBlock Text="Z" HorizontalAlignment="Center"
+                                Grid.Column="4"/>
+
+            <TextBlock Text="Position" 
+                                Grid.Row="1" Grid.Column="1"/>
+            <TextBlock Text="Rotation" 
+                                Grid.Row="2" Grid.Column="1"/>
+
+            <TextBlock Text="Size"
+                                Grid.Row="3" Grid.Column="1"/>
+
+            <TextBox Text="{Binding Position.X, UpdateSourceTrigger=PropertyChanged}" 
+                                Grid.Row="1" Grid.Column="2"/>
+            <TextBox Text="{Binding Rotation.X, UpdateSourceTrigger=PropertyChanged}" 
+                                Grid.Row="2" Grid.Column="2"/>
+            <TextBox Text="{Binding Size.X, UpdateSourceTrigger=PropertyChanged}"
+                                Grid.Row="3" Grid.Column="2"/>
+
+            <TextBox Text="{Binding Position.Y, UpdateSourceTrigger=PropertyChanged}" 
+                                Grid.Row="1" Grid.Column="3"/>
+            <TextBox Text="{Binding Rotation.Y, UpdateSourceTrigger=PropertyChanged}" 
+                                Grid.Row="2" Grid.Column="3"/>
+            <TextBox Text="{Binding Size.Y, UpdateSourceTrigger=PropertyChanged}"
+                                Grid.Row="3" Grid.Column="3"/>
+
+            <TextBox Text="{Binding Position.Z, UpdateSourceTrigger=PropertyChanged}" 
+                                Grid.Row="1" Grid.Column="4"/>
+            <TextBox Text="{Binding Rotation.Z, UpdateSourceTrigger=PropertyChanged}" 
+                                Grid.Row="2" Grid.Column="4"/>
+            <TextBox Text="{Binding Size.Z, UpdateSourceTrigger=PropertyChanged}"
+                                Grid.Row="3" Grid.Column="4"/>
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="CommonComponentTemplate">
+        <StackPanel>
+            <!--
+            <ContentPresenter Content="{Binding Transform}" ContentTemplate="{StaticResource ResourceKey=TransformTemplate}"/>
+            -->
+            <Grid Margin="0,20,0,0"
+                  Width="450"
+                  HorizontalAlignment="Left">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Script" />
+                
+                <TextBlock Text="Source" 
+                           Margin="0,0,10,0"
+                           Grid.Row="1"
+                           HorizontalAlignment="Right" />
+
+                <ComboBox Grid.Column="1" 
+                          Grid.Row="1" 
+                          SelectedValue="{Binding ScriptSource}"
+                          SelectedValuePath="ImportedFilename"
+                          ItemsSource="{Binding DataContext.AvailableScripts, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <TextBlock Text="Parameters" 
+                           Margin="20,10,0,0"
+                           Grid.Row="2"
+                           HorizontalAlignment="Right" />
+
+                <DataGrid Grid.Row="2" 
+                          Grid.Column="1"
+                          Grid.ColumnSpan="2"
+                          Margin="0,10,0,0"
+                          CanUserAddRows="True"
+                          AutoGenerateColumns="False"
+                          ItemsSource="{Binding ScriptParameters}"
+                          AddingNewItem="NewProperty"
+                          Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:ActorEditor}}}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Name" Width="*" Binding="{Binding Name}"/>
+                        <DataGridTextColumn Header="Value" Width="2*" Binding="{Binding Value}"/>
+                    </DataGrid.Columns>
+
+                    <DataGrid.Style>
+                        <Style>
+                            <Setter Property="Border.BorderThickness" Value="0" />
+                        </Style>
+                    </DataGrid.Style>
+
+                </DataGrid>
+            </Grid>
+
+        </StackPanel>
+    </DataTemplate>
+    
+    <DataTemplate x:Key="ShaderParameterTemplate">
+        <StackPanel>
+            <Button Content="New group" Command="{Binding DataContext.NewParameterGroup, RelativeSource={RelativeSource AncestorType={x:Type local:ActorEditor}}}" HorizontalAlignment="Left"/>
+
+            <ListBox ItemsSource="{Binding ParameterGroups}" 
+                     ScrollViewer.CanContentScroll="False"
+                     SelectedItem="{Binding SelectedParameterGroup}">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}">
+                        <Style.Triggers>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter Property="IsSelected" Value="True" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <ItemContainerTemplate>
+                        <StackPanel >
+
+                            <TextBox Text="{Binding Name}" />
+                            <DataGrid ItemsSource="{Binding Parameters}"
+                                      SelectedItem="{Binding SelectedParameter}"
+                                      AutoGenerateColumns="False"
+                                      Margin="15,0,0,0"
+                                      Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type local:ActorEditor}}}">
+                                <DataGrid.ItemContainerStyle>
+                                    <Style TargetType="{x:Type DataGridRow}">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                                <Setter Property="IsSelected" Value="True" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGrid.ItemContainerStyle>
+
+                                <DataGrid.ContextMenu>
+                                    <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                        <MenuItem Header="Add parameter" Command="{Binding AddParameter}" />
+                                        <MenuItem Header="Remove selected parameter" Command="{Binding RemoveParameter}" />
+                                        <Separator />
+                                        <MenuItem Header="Delete this parameter group" Command="{Binding RemoveParameterGroup}" />
+                                    </ContextMenu>
+                                </DataGrid.ContextMenu>
+
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding Name}" 
+                                                        Header="Name" />
+                                    <DataGridTextColumn Binding="{Binding Type}" 
+                                                        Header="Type" 
+                                                        IsReadOnly="True"/>
+                                    <DataGridTemplateColumn CellTemplateSelector="{StaticResource ResourceKey=ParameterTemplateSelector}" 
+                                                            Header="Value"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </ItemContainerTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Key="StaticMeshTemplate">
+        <TabControl Grid.Row="1" Grid.Column="1" TabStripPlacement="Right">
+
+            <TabItem Header="Common">
+                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource ResourceKey=CommonComponentTemplate}"/>
+            </TabItem>
+
+            <TabItem Header="Render" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Material" />
+                    <ComboBox Width="150"
+                              Grid.Column="1"
+                              HorizontalAlignment="Left"
+                              SelectedValue="{Binding Material}"
+                              SelectedValuePath="ImportedFilename"
+                              ItemsSource="{Binding DataContext.AvailableMaterials, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <TextBlock Text="Mesh" 
+                               Grid.Row="2"/>
+                    
+                    <ComboBox Width="150"
+                              Grid.Column="2"
+                              Grid.Row="2"
+                              HorizontalAlignment="Left"
+                              SelectedValue="{Binding Mesh}"
+                              SelectedValuePath="ImportedFilename"
+                              ItemsSource="{Binding DataContext.AvailableMeshes, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <TextBlock Text="Parameter groups" 
+                                       Margin="0,0,10,0"
+                                       Grid.Row="4"/>
+
+                    <ContentPresenter Grid.Row="4"
+                                      Grid.Column="1"
+                                      Content="{Binding}" 
+                                      ContentTemplate="{StaticResource ResourceKey=ShaderParameterTemplate}"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="DynamicMeshTemplate">
+        <TabControl Grid.Row="1" Grid.Column="1" TabStripPlacement="Right">
+
+            <TabItem Header="Common">
+                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource ResourceKey=CommonComponentTemplate}"/>
+            </TabItem>
+
+            <TabItem Header="Render" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Material" />
+                    <ComboBox Width="150"
+                              Grid.Column="1"
+                              HorizontalAlignment="Left"
+                              SelectedValue="{Binding Material}"
+                              SelectedValuePath="Name"
+                              ItemsSource="{Binding DataContext.AvailableMaterials, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <TextBlock Text="Topology" 
+                               Grid.Row="2"/>
+
+                    <ComboBox Width="150"
+                              Grid.Column="2"
+                              Grid.Row="2"
+                              HorizontalAlignment="Left"
+                              SelectedItem="{Binding Topology}"                              
+                              ItemsSource="{Binding DataContext.AvailableTopology, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                       
+                    </ComboBox>
+
+                    <TextBlock Text="Parameter groups" 
+                                       Margin="0,0,10,0"
+                                       Grid.Row="4"/>
+
+                    <ContentPresenter Grid.Row="4"
+                                      Grid.Column="1"
+                                      Content="{Binding}" 
+                                      ContentTemplate="{StaticResource ResourceKey=ShaderParameterTemplate}"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="LightTemplate">
+        <TabControl Grid.Row="1" Grid.Column="1" TabStripPlacement="Right">
+
+            <TabItem Header="Common">
+                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource ResourceKey=CommonComponentTemplate}"/>
+            </TabItem>
+
+            <TabItem Header="Render" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                            
+                    <Grid Grid.ColumnSpan="2">                        
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Colour"/>
+
+                        <TextBlock Text="R" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="1"/>
+
+                        <TextBlock Text="G" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="2"/>
+
+                        <TextBlock Text="B" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="3"/>
+
+                        <TextBlock Text="Ambient"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="1"/>
+
+                        <TextBox Text="{Binding AmbientColour.X}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="1"/>
+                        
+                        <TextBox Text="{Binding AmbientColour.Y}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding AmbientColour.Z}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="3"/>
+
+                        <TextBlock Text="Diffuse" 
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="2"/>
+                        
+                        <TextBox Text="{Binding DiffuseColour.X}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding DiffuseColour.Y}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="2"/>
+                        
+                        <TextBox Text="{Binding DiffuseColour.Z}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="3"/>
+
+                    </Grid>
+
+                    <TextBlock Text="Material" 
+                               Grid.Row="2"/>
+                    <ComboBox Width="150"
+                              Grid.Row="2"
+                              Grid.Column="1"
+                              HorizontalAlignment="Left"
+                              SelectedValue="{Binding Material}"
+                              SelectedValuePath="Name"
+                              ItemsSource="{Binding DataContext.AvailableMaterials, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    
+                    <TextBlock Text="Shadow casting" 
+                               Grid.Row="4"
+                               />
+                    
+                    <CheckBox IsChecked="{Binding IsShadowCasting}"
+                              Grid.Row="4"
+                              Grid.Column="2"
+                              />
+
+                    <TextBlock Text="Type" 
+                               Grid.Row="6"/>
+                    <ComboBox Width="150"
+                              Grid.Row="6"
+                              Grid.Column="1"
+                              HorizontalAlignment="Left"
+                              SelectedItem="{Binding LightType}"
+                              ItemsSource="{Binding DataContext.AvailableLightTypes, RelativeSource={RelativeSource AncestorType=UserControl}}"/>                        
+                    
+                    <Grid Grid.ColumnSpan="2"
+                          Grid.Row="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Direction"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="1"/>
+
+                        <TextBlock Text="X" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="1"/>
+
+                        <TextBlock Text="Y" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="2"/>
+
+                        <TextBlock Text="Z" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="3"/>
+
+                        <TextBox Text="{Binding Direction.X}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding Direction.Y}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding Direction.Z}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="3"/>     
+                    </Grid>
+
+                    <TextBlock Text="Parameter groups" 
+                                       Margin="0,0,10,0"
+                                       Grid.Row="10"/>
+
+                    <ContentPresenter Grid.Row="10"
+                                      Grid.Column="1"
+                                      Content="{Binding}" 
+                                      ContentTemplate="{StaticResource ResourceKey=ShaderParameterTemplate}"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="ParticleEmitterTemplate">
+        <TabControl Grid.Row="1" Grid.Column="1" TabStripPlacement="Right">
+
+            <TabItem Header="Common">
+                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource ResourceKey=CommonComponentTemplate}"/>
+            </TabItem>
+
+            <TabItem Header="Render" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>                    
+
+                    <TextBlock Text="Material" 
+                               Grid.Row="0"/>
+                    <ComboBox Width="150"
+                              Grid.Row="0"
+                              Grid.Column="1"
+                              HorizontalAlignment="Left"
+                              SelectedValue="{Binding Material}"
+                              SelectedValuePath="Name"
+                              ItemsSource="{Binding DataContext.AvailableMaterials, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <Grid Grid.Row="2"                         
+                          Grid.ColumnSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="InitialVelocity"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="1"/>
+                        
+                        <TextBlock Text="X" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="1"/>
+
+                        <TextBlock Text="Y" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="2"/>
+
+                        <TextBlock Text="Z" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="3"/>
+
+                        <TextBox Text="{Binding InitialVelocity.X}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding InitialVelocity.Y}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding InitialVelocity.Z}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="3"/>
+                    </Grid>
+
+                    <TextBlock Text="Spawn time" 
+                               Grid.Row="4"/>
+
+                    <TextBox Text="{Binding SpawnTime}"
+                             Grid.Column="1"
+                             Grid.Row="4"
+                             HorizontalAlignment="Left"
+                             />
+
+                    <TextBlock Text="Parameter groups" 
+                               Margin="0,0,10,0"
+                               Grid.Row="6"/>
+
+                    <ContentPresenter Grid.Row="6"
+                                      Grid.Column="1"
+                                      Content="{Binding}" 
+                                      ContentTemplate="{StaticResource ResourceKey=ShaderParameterTemplate}"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="TextTemplate">
+        <TabControl Grid.Row="1" Grid.Column="1" TabStripPlacement="Right">
+
+            <TabItem Header="Common">
+                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource ResourceKey=CommonComponentTemplate}"/>
+            </TabItem>
+
+            <TabItem Header="Render" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Material" 
+                               Grid.Row="0"/>
+                    <ComboBox Width="150"
+                              Grid.Row="0"
+                              Grid.Column="1"
+                              HorizontalAlignment="Left"
+                              SelectedValue="{Binding Material}"
+                              SelectedValuePath="Name"
+                              ItemsSource="{Binding DataContext.AvailableMaterials, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>                    
+
+                    <TextBlock Text="Text" 
+                               Grid.Row="2"/>
+
+                    <TextBox Text="{Binding String}"
+                             Grid.Column="1"
+                             Grid.Row="2"
+                             HorizontalAlignment="Left"
+                             />
+
+                    <TextBlock Text="Is 2D Overlay" 
+                               Grid.Row="4"/>
+
+                    <CheckBox IsChecked="{Binding Is2DOverlay}"
+                             Grid.Column="1"
+                             Grid.Row="4"
+                             HorizontalAlignment="Left"
+                             />
+
+                    <TextBlock Text="Parameter groups" 
+                               Margin="0,0,10,0"
+                               Grid.Row="6"/>
+
+                    <ContentPresenter Grid.Row="6"
+                                      Grid.Column="1"
+                                      Content="{Binding}" 
+                                      ContentTemplate="{StaticResource ResourceKey=ShaderParameterTemplate}"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="WindowTemplate">
+        <TabControl Grid.Row="1" Grid.Column="1" TabStripPlacement="Right">
+
+            <TabItem Header="Render" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock Text="Layout" 
+                               Grid.Row="2"/>
+
+                    <ComboBox Width="150"
+                              Grid.Column="2"
+                              Grid.Row="2"
+                              HorizontalAlignment="Left"
+                              SelectedValue="{Binding Layout}"
+                              SelectedValuePath="ImportedFilename"
+                              ItemsSource="{Binding DataContext.AvailableUIs, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="CameraTemplate">
+        <TabControl Grid.Row="1" Grid.Column="1" TabStripPlacement="Right">
+
+            <TabItem Header="Common">
+                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource ResourceKey=CommonComponentTemplate}"/>
+            </TabItem>
+            
+            <TabItem Header="Camera">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Field of view (degrees)" 
+                               />
+
+                    <TextBox Text="{Binding FieldOfView}"
+                             Grid.Column="1"                             
+                             HorizontalAlignment="Left"
+                             Margin="10,0,0,0"
+                             />
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="PrimitiveBodyTemplate">
+        <TabControl Grid.Row="1" Grid.Column="1" TabStripPlacement="Right">
+
+            <TabItem Header="Common">
+                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource ResourceKey=CommonComponentTemplate}"/>
+            </TabItem>
+
+            <TabItem Header="Rigid" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Shape" 
+                               Grid.Row="0"/>
+                    <ComboBox Width="150"
+                              Grid.Row="0"
+                              Grid.Column="1"
+                              HorizontalAlignment="Left"
+                              SelectedItem="{Binding Shape}"
+                              ItemsSource="{Binding DataContext.AvailableShapes, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+
+
+                    <TextBlock Text="Mass" 
+                               Grid.Row="2"/>
+
+                    <TextBox Text="{Binding Mass, UpdateSourceTrigger=PropertyChanged}"
+                             Grid.Column="1"
+                             Grid.Row="2"
+                             HorizontalAlignment="Left"
+                             />
+
+                    <TextBlock Text="Friction" 
+                               Grid.Row="4"/>
+
+                    <TextBox Text="{Binding Friction, UpdateSourceTrigger=PropertyChanged}"
+                             Grid.Column="1"
+                             Grid.Row="4"
+                             HorizontalAlignment="Left"
+                             />
+
+                    <TextBlock Text="Restitution" 
+                               Grid.Row="6"/>
+
+                    <TextBox Text="{Binding Restitution, UpdateSourceTrigger=PropertyChanged}"
+                             Grid.Column="1"
+                             Grid.Row="6"
+                             HorizontalAlignment="Left"
+                             />
+
+                    <TextBlock Text="Disable Sleeping" 
+                               Grid.Row="8"/>
+
+                    <CheckBox IsChecked="{Binding DisableSleeping}"
+                             Grid.Column="1"
+                             Grid.Row="8"
+                             HorizontalAlignment="Left"
+                             />
+
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Linear" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                   
+                    <Grid Grid.Row="0"                         
+                          Grid.ColumnSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="X" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="1"/>
+
+                        <TextBlock Text="Y" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="2"/>
+
+                        <TextBlock Text="Z" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="3"/>
+
+                        <TextBlock Text="Linear Factor"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="1"/>
+
+                        <TextBox Text="{Binding LinearFactor.X, UpdateSourceTrigger=PropertyChanged}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding LinearFactor.Y, UpdateSourceTrigger=PropertyChanged}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding LinearFactor.Z, UpdateSourceTrigger=PropertyChanged}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="3"/>
+                       
+                    </Grid>
+
+                    <TextBlock Text="Linear Damping" 
+                               Grid.Row="2"/>
+
+                    <TextBox Text="{Binding LinearDamping, UpdateSourceTrigger=PropertyChanged}"
+                             Grid.Column="1"
+                             Grid.Row="2"
+                             HorizontalAlignment="Left"
+                             />
+
+                    <TextBlock Text="Linear Sleeping Threshold" 
+                               Grid.Row="4"/>
+
+                    <TextBox Text="{Binding LinearSleepingThreshold, UpdateSourceTrigger=PropertyChanged}"
+                             Grid.Column="1"
+                             Grid.Row="4"
+                             HorizontalAlignment="Left"
+                             />
+
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Angular" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Row="0"                         
+                          Grid.ColumnSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="X" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="1"/>
+
+                        <TextBlock Text="Y" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="2"/>
+
+                        <TextBlock Text="Z" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="3"/>
+
+                        <TextBlock Text="Angular Factor"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="1"/>
+
+                        <TextBox Text="{Binding AngularFactor.X, UpdateSourceTrigger=PropertyChanged}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding AngularFactor.Y, UpdateSourceTrigger=PropertyChanged}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding AngularFactor.Z, UpdateSourceTrigger=PropertyChanged}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="3"/>
+
+                    </Grid>
+
+                    <TextBlock Text="Angular Damping" 
+                               Grid.Row="2"/>
+
+                    <TextBox Text="{Binding AngularDamping, UpdateSourceTrigger=PropertyChanged}"
+                             Grid.Column="1"
+                             Grid.Row="2"
+                             HorizontalAlignment="Left"
+                             />
+
+                    <TextBlock Text="Angular Sleeping Threshold" 
+                               Grid.Row="4"/>
+
+                    <TextBox Text="{Binding AngularSleepingThreshold, UpdateSourceTrigger=PropertyChanged}"
+                             Grid.Column="1"
+                             Grid.Row="4"
+                             HorizontalAlignment="Left"
+                             />
+
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="TriggerVolumeTemplate">
+        <TabControl Grid.Row="1" Grid.Column="1" TabStripPlacement="Right">
+
+            <TabItem Header="Common">
+                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource ResourceKey=CommonComponentTemplate}"/>
+            </TabItem>
+
+            <TabItem Header="Volume" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Shape" 
+                               Grid.Row="0"/>
+                    <ComboBox Width="150"
+                              Grid.Row="0"
+                              Grid.Column="1"
+                              HorizontalAlignment="Left"
+                              SelectedItem="{Binding Shape}"
+                              ItemsSource="{Binding DataContext.AvailableShapes, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+
+
+                    <TextBlock Text="Ignore Static Bodies" 
+                               Grid.Row="2"/>
+
+                    <CheckBox IsChecked="{Binding IgnoreStaticBodies}"
+                             Grid.Column="1"
+                             Grid.Row="2"
+                             HorizontalAlignment="Left"
+                             />                    
+                </Grid>
+            </TabItem>
+           
+        </TabControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="ConstraintTemplate">
+        <TabControl Grid.Row="1" Grid.Column="1" TabStripPlacement="Right">
+
+            <TabItem Header="Common">
+                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource ResourceKey=CommonComponentTemplate}"/>
+            </TabItem>
+
+            <TabItem Header="Bodies" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>                   
+
+                    <TextBlock Text="Body A" 
+                               Grid.Row="0"/>
+
+                    <TextBox Text="{Binding BodyA}"
+                             Grid.Column="1"
+                             Grid.Row="0"
+                             HorizontalAlignment="Left"
+                             />
+
+                    <TextBlock Text="Body B" 
+                               Grid.Row="2"/>
+
+                    <TextBox Text="{Binding BodyB}"
+                             Grid.Column="1"
+                             Grid.Row="2"
+                             HorizontalAlignment="Left"
+                             />                  
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Limits" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />                        
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Row="0"                         
+                          Grid.ColumnSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="X" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="1"/>
+
+                        <TextBlock Text="Y" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="2"/>
+
+                        <TextBlock Text="Z" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="3"/>
+
+                        <TextBlock Text="Linear Lower Limit"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="1"/>
+
+                        <TextBox Text="{Binding LinearLowerLimit.X}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding LinearLowerLimit.Y}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding LinearLowerLimit.Z}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="3"/>
+
+                        <TextBlock Text="Linear Upper Limit"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="2"/>
+
+                        <TextBox Text="{Binding LinearUpperLimit.X}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding LinearUpperLimit.Y}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding LinearUpperLimit.Z}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="3"/>
+
+                        <TextBlock Text="Angular Lower Limit"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="3"/>
+
+                        <TextBox Text="{Binding AngularLowerLimit.X}" 
+                                 Grid.Row="3" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding AngularLowerLimit.Y}" 
+                                 Grid.Row="3" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding AngularLowerLimit.Z}" 
+                                 Grid.Row="3" 
+                                 Grid.Column="3"/>
+                        
+                        <TextBlock Text="Angular Upper Limit"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="4"/>
+
+                        <TextBox Text="{Binding AngularUpperLimit.X}" 
+                                 Grid.Row="4" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding AngularUpperLimit.Y}" 
+                                 Grid.Row="4" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding AngularUpperLimit.Z}" 
+                                 Grid.Row="4" 
+                                 Grid.Column="3"/>
+
+                    </Grid>               
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Velocity" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />                        
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Row="0"                         
+                          Grid.ColumnSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="X" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="1"/>
+
+                        <TextBlock Text="Y" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="2"/>
+
+                        <TextBlock Text="Z" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="3"/>
+
+                        <TextBlock Text="Linear Target Velocity"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="1"/>
+
+                        <TextBox Text="{Binding LinearTargetVelocity.X}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding LinearTargetVelocity.Y}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding LinearTargetVelocity.Z}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="3"/>
+
+                        <TextBlock Text="Angular Target Velocity"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="2"/>
+
+                        <TextBox Text="{Binding AngularTargetVelocity.X}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding AngularTargetVelocity.Y}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding AngularTargetVelocity.Z}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="3"/>
+
+                    </Grid>
+
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="SpringConstraintTemplate">
+        <TabControl Grid.Row="1" Grid.Column="1" TabStripPlacement="Right">
+
+            <TabItem Header="Common">
+                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource ResourceKey=CommonComponentTemplate}"/>
+            </TabItem>
+
+            <TabItem Header="Bodies" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Body A" 
+                               Grid.Row="0"/>
+
+                    <TextBox Text="{Binding BodyA}"
+                             Grid.Column="1"
+                             Grid.Row="0"
+                             HorizontalAlignment="Left"
+                             />
+
+                    <TextBlock Text="Body B" 
+                               Grid.Row="2"/>
+
+                    <TextBox Text="{Binding BodyB}"
+                             Grid.Column="1"
+                             Grid.Row="2"
+                             HorizontalAlignment="Left"
+                             />
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Limits" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Row="0"                         
+                          Grid.ColumnSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="X" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="1"/>
+
+                        <TextBlock Text="Y" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="2"/>
+
+                        <TextBlock Text="Z" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="3"/>
+
+                        <TextBlock Text="Linear Lower Limit"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="1"/>
+
+                        <TextBox Text="{Binding LinearLowerLimit.X}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding LinearLowerLimit.Y}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding LinearLowerLimit.Z}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="3"/>
+
+                        <TextBlock Text="Linear Upper Limit"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="2"/>
+
+                        <TextBox Text="{Binding LinearUpperLimit.X}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding LinearUpperLimit.Y}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding LinearUpperLimit.Z}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="3"/>
+
+                        <TextBlock Text="Angular Lower Limit"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="3"/>
+
+                        <TextBox Text="{Binding AngularLowerLimit.X}" 
+                                 Grid.Row="3" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding AngularLowerLimit.Y}" 
+                                 Grid.Row="3" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding AngularLowerLimit.Z}" 
+                                 Grid.Row="3" 
+                                 Grid.Column="3"/>
+
+                        <TextBlock Text="Angular Upper Limit"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="4"/>
+
+                        <TextBox Text="{Binding AngularUpperLimit.X}" 
+                                 Grid.Row="4" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding AngularUpperLimit.Y}" 
+                                 Grid.Row="4" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding AngularUpperLimit.Z}" 
+                                 Grid.Row="4" 
+                                 Grid.Column="3"/>
+
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Velocity" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Row="0"                         
+                          Grid.ColumnSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="X" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="1"/>
+
+                        <TextBlock Text="Y" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="2"/>
+
+                        <TextBlock Text="Z" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="3"/>
+
+                        <TextBlock Text="Linear Target Velocity"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="1"/>
+
+                        <TextBox Text="{Binding LinearTargetVelocity.X}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding LinearTargetVelocity.Y}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding LinearTargetVelocity.Z}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="3"/>
+
+                        <TextBlock Text="Angular Target Velocity"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="2"/>
+
+                        <TextBox Text="{Binding AngularTargetVelocity.X}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding AngularTargetVelocity.Y}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding AngularTargetVelocity.Z}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="3"/>
+
+                    </Grid>
+
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Spring" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Row="0"                         
+                          Grid.ColumnSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="X" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="1"/>
+
+                        <TextBlock Text="Y" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="2"/>
+
+                        <TextBlock Text="Z" 
+                                   HorizontalAlignment="Center"
+                                   Grid.Column="3"/>
+
+                        <TextBlock Text="Linear Stiffness"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="1"/>
+
+                        <TextBox Text="{Binding LinearStiffness.X}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding LinearStiffness.Y}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding LinearStiffness.Z}" 
+                                 Grid.Row="1" 
+                                 Grid.Column="3"/>
+
+                        <TextBlock Text="Linear Damping"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="2"/>
+
+                        <TextBox Text="{Binding LinearDamping.X}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding LinearDamping.Y}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding LinearDamping.Z}" 
+                                 Grid.Row="2" 
+                                 Grid.Column="3"/>
+
+                        <TextBlock Text="Angular Stiffness"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="3"/>
+
+                        <TextBox Text="{Binding AngularStiffness.X}" 
+                                 Grid.Row="3" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding AngularStiffness.Y}" 
+                                 Grid.Row="3" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding AngularStiffness.Z}" 
+                                 Grid.Row="3" 
+                                 Grid.Column="3"/>
+
+                        <TextBlock Text="Angular Damping"
+                                   HorizontalAlignment="Right"
+                                   Margin="20,0,10,0"
+                                   Grid.Row="4"/>
+
+                        <TextBox Text="{Binding AngularDamping.X}" 
+                                 Grid.Row="4" 
+                                 Grid.Column="1"/>
+
+                        <TextBox Text="{Binding AngularDamping.Y}" 
+                                 Grid.Row="4" 
+                                 Grid.Column="2"/>
+
+                        <TextBox Text="{Binding AngularDamping.Z}" 
+                                 Grid.Row="4" 
+                                 Grid.Column="3"/>
+
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+
+        </TabControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="LogicTemplate">
+        <TabControl Grid.Row="1" Grid.Column="1" TabStripPlacement="Right">
+
+            <TabItem Header="Common">
+                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource ResourceKey=CommonComponentTemplate}"/>
+            </TabItem>
+        </TabControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="SoundEffectTemplate">
+        <TabControl Grid.Row="1" Grid.Column="1" TabStripPlacement="Right">
+
+            <TabItem Header="Common">
+                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource ResourceKey=CommonComponentTemplate}"/>
+            </TabItem>
+
+            <TabItem Header="Sound" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Sound" />
+                    <ComboBox Width="150"
+                              Grid.Column="1"
+                              HorizontalAlignment="Left"
+                              SelectedValue="{Binding Sound}"
+                              SelectedValuePath="Name"
+                              ItemsSource="{Binding DataContext.AvailableSounds, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <TextBlock Text="Is Looping" 
+                               Grid.Row="2"/>
+
+                    <CheckBox IsChecked="{Binding IsLooping}"
+                             Grid.Column="1"
+                             Grid.Row="2"
+                             HorizontalAlignment="Left"
+                             />
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="VehicleTemplate">
+        <TabControl Grid.Row="1" Grid.Column="1" TabStripPlacement="Right">
+
+            <TabItem Header="Common">
+                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource ResourceKey=CommonComponentTemplate}"/>
+            </TabItem>            
+        </TabControl>
+    </DataTemplate>
+
+</ResourceDictionary>

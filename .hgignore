@@ -6,9 +6,9 @@ bin/
 obj/
 Properties/
 Debug/
-Agents/
-Tic Tac Toe/
+Release/
 
+*.db
 *.user
 *.suo
 *.orig
@@ -20,6 +20,7 @@ Tic Tac Toe/
 *.pdb
 *.res
 *.sdf
+*.vcxproj
 
 Intellisense Workaround/
 ipch/

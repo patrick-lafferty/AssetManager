@@ -1,0 +1,263 @@
+﻿<Window x:Class="AssetManager.MaterialEditor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:AssetManager"
+        Title="MaterialEditor" Width="900" Height="600"
+        WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <local:ParameterTemplateSelector x:Key="ParameterTemplateSelector" />
+        
+        <DataTemplate x:Key="ScalarTemplate">
+            <TextBox Text="{Binding Value}"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="Vector2Template">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="x:"/>
+                <TextBox Text="{Binding X}" />
+
+                <TextBlock Text="y:"/>
+                <TextBox Text="{Binding Y}" />
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="Vector3Template">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="x:"/>
+                <TextBox Text="{Binding X}" />
+
+                <TextBlock Text="y:"/>
+                <TextBox Text="{Binding Y}" />
+
+                <TextBlock Text="z:"/>
+                <TextBox Text="{Binding Z}" />
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="Vector4Template">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="x:"/>
+                <TextBox Text="{Binding X}" />
+
+                <TextBlock Text="y:"/>
+                <TextBox Text="{Binding Y}" />
+
+                <TextBlock Text="z:"/>
+                <TextBox Text="{Binding Z}" />
+
+                <TextBlock Text="w:"/>
+                <TextBox Text="{Binding W}" />
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ArrayTemplate">
+            <ListBox ItemsSource="{Binding Elements}" ItemTemplate="{StaticResource ResourceKey=Vector4Template}"
+                     SelectedItem="{Binding SelectedElement, UpdateSourceTrigger=PropertyChanged}">
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Add array element">
+                            <MenuItem Header="float4" Click="AddArrayParameterElementFloat4"/>
+                            <MenuItem Header="int4" Click="AddArrayParameterElementInt4"/>
+                            <MenuItem Header="bool4" Click="AddArrayParameterElementBool4"/>
+                        </MenuItem>
+                        <MenuItem Header="Remove selected array element" Click="RemoveArrayParameterElement" />
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+            </ListBox>
+        </DataTemplate>
+            
+    </Window.Resources>
+    
+    <TabControl>        
+        
+        <TabItem Header="Material">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Name"/>
+                <TextBox Text="{Binding asset.Name}"                          
+                             Grid.Column="1"/>
+                <TextBlock Text="Description"
+                               Grid.Row="2"/>
+                <TextBox Text="{Binding asset.Description}"                          
+                             Grid.Row="2"
+                             Grid.Column="1"
+                             
+                             AcceptsReturn="True"
+                             Height="200"
+                             ScrollViewer.VerticalScrollBarVisibility="Visible"/>
+                
+                <Button Content="Save" 
+                        Click="Save"
+                        Grid.Row="4"/>
+
+            </Grid>
+        </TabItem>
+    
+        <TabItem Header="Resources">
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Textures"/>
+                
+                <DataGrid ItemsSource="{Binding asset.Textures}" 
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      Grid.Column="1"
+                      SelectedItem="{Binding SelectedTexture}"
+                      >
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Binding" Binding="{Binding Binding}" />
+
+                        <DataGridTemplateColumn Header="Source">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <ComboBox ItemsSource="{Binding AvailableTextures, RelativeSource={RelativeSource AncestorType=Window}}"  
+                                                  SelectedItem="{Binding Source, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name">
+                                            <ComboBox.Style>
+                                                <Style TargetType="ComboBox">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsProcedural}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ComboBox.Style>
+                                        </ComboBox>
+
+                                        <TextBox Text="{Binding SourceId, UpdateSourceTrigger=PropertyChanged}" >
+                                            <TextBox.Style>
+                                                <Style TargetType="TextBox">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsProcedural}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBox.Style>
+                                        </TextBox>
+
+                                        <CheckBox Content="Procedural" Grid.Column="1" IsChecked="{Binding IsProcedural, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </TabItem>
+
+        <TabItem Header="Parameters">
+            <Grid>
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition />                                  
+                </Grid.RowDefinitions>
+                
+                <Button Content="New group" Click="NewParameterGroup"/>
+
+                <ListBox ItemsSource="{Binding asset.ParameterGroups}" ScrollViewer.CanContentScroll="False"
+                        SelectedItem="{Binding SelectedParameterGroup}"
+                         Grid.Row="1"
+                        >
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Delete this parameter group" Click="RemoveParameterGroup" />
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListBoxItem}">
+                            <Style.Triggers>
+                                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                    <Setter Property="IsSelected" Value="True" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <ItemContainerTemplate>
+                            <StackPanel Width="400">
+
+                                <TextBox Text="{Binding Name}" />
+                                <ListBox ItemsSource="{Binding Parameters}"
+                                        SelectedItem="{Binding SelectedParameter}"
+                                        MinHeight="20"
+                                        Margin="15,0,0,0">
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="{x:Type ListBoxItem}">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                                    <Setter Property="IsSelected" Value="True" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+
+                                    <ListBox.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Add parameter" Click="AddParameter" />
+                                            <MenuItem Header="Remove selected parameter" Click="RemoveParameter" />
+                                            <Separator />
+                                            <MenuItem Header="Delete this parameter group" Click="RemoveParameterGroup" />
+                                        </ContextMenu>
+                                    </ListBox.ContextMenu>
+                                    
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Name}" />
+                                                <TextBlock Text="{Binding Type}" Margin="10,0,0,0"/>
+                                                <ContentPresenter DataContext="{Binding}"  Margin="10,0,0,0"
+                                                                      ContentTemplateSelector="{StaticResource ResourceKey=ParameterTemplateSelector}"
+                                                                      />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>                                    
+                                
+                                </ListBox>
+                                
+                            </StackPanel>
+                        </ItemContainerTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                
+            </Grid>
+        </TabItem>
+        
+    </TabControl>   
+</Window>
