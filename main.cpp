@@ -1,5 +1,26 @@
+/*
+MIT License
 
+Copyright (c) 2016 Patrick Lafferty
 
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -18,6 +39,7 @@ auto getTempFilename() -> std::string
 
 auto runFxc(std::string shader, std::string entryPoint, std::string target) -> std::string
 {
+	//TODO: hardcoded path	
 	std::string fxc = "\"C:\\Program Files (x86)\\Windows Kits\\8.1\\bin\\x64\\fxc.exe\" ";
 	std::string command = fxc;
 	std::string tempFilename = getTempFilename();
@@ -25,12 +47,15 @@ auto runFxc(std::string shader, std::string entryPoint, std::string target) -> s
 	command += shader;
 	command += " " + entryPoint;
 	command += " " + target;
-	command += (" /Fo") + tempFilename;
-	//command += " /O3";
+	command += (" /Fo") + tempFilename;	
 
 #ifdef _DEBUG
 
 	command += " /Zi /Od";
+
+#else
+
+	command += " /O3";
 
 #endif
 
@@ -123,6 +148,8 @@ auto getFormat(D3D11_SIGNATURE_PARAMETER_DESC description) -> DXGI_FORMAT
 
 		}
 	}
+
+	return DXGI_FORMAT_UNKNOWN;
 }
 
 const int SHDR = 
@@ -316,7 +343,7 @@ auto importShader(std::string inputFilename, std::string outputFilename,
 
 		vertexShader.write(reinterpret_cast<const char*>(&description.InputParameters), 4);
 		
-		for (int i = 0; i < description.InputParameters; i++)
+		for (unsigned int i = 0; i < description.InputParameters; i++)
 		{
 			D3D11_SIGNATURE_PARAMETER_DESC parameter;
 			reflection->GetInputParameterDesc(i, &parameter);
@@ -351,7 +378,13 @@ int main(int argc, char** argv)
 	std::ifstream file(argv[1], std::ios::binary | std::ios::ate);
 	auto fileLength = file.tellg();
 
-	std::string shaderSource(fileLength, '0');
+	if (fileLength <= 0)
+	{
+		std::cerr << "unable to read file " << argv[1] << std::endl;
+		return 1;
+	}
+
+	std::string shaderSource(static_cast<unsigned int>(fileLength), '0');
 
 	file.seekg(0, std::ios::beg);
 	file.read(&shaderSource[0], fileLength);
