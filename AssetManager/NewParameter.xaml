@@ -1,0 +1,56 @@
+﻿<Window x:Class="AssetManager.NewParameter"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="NewParameter" Height="300" Width="300">
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush>
+
+                <GradientStop 
+                    Color="SkyBlue" 
+                    Offset="0"/>
+
+                <GradientStop 
+                    Color="AliceBlue" 
+                    Offset="1"/>
+
+            </LinearGradientBrush>
+
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        
+        <TextBlock Text="Name" />
+        <TextBox Text="{Binding ParameterName}" 
+                 Grid.Column="1"/>
+
+        <TextBlock Text="Type" 
+                   Grid.Row="1"/>
+        <ListBox Grid.Column="1"
+                 Grid.Row="1"
+                 ItemsSource="{Binding Types}"
+                 SelectedValue="{Binding Parameter}"
+                 />
+            
+        
+        
+        <Button Content="Ok"
+                Grid.Row="2"
+                Click="CreateNewParameter" />
+
+        <Button Content="Cancel"
+                Grid.Row="2"
+                Grid.Column="1"
+                Click="Cancel" />
+
+
+    </Grid>
+</Window>
