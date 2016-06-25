@@ -19,7 +19,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>$(SolutionDir)bin\$(Configuration)\$(TargetName)$(TargetExt)</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -28,7 +28,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>$(SolutionDir)bin\$(Configuration)\$(TargetName)$(TargetExt)</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -37,6 +37,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -66,11 +67,13 @@
     <Compile Include="MeshAsset.cs" />
     <Compile Include="ParameterTemplateSelector.cs" />
     <Compile Include="PropertyGroups.cs" />
-    <Compile Include="PropertyTemplateSelector.cs" />
     <Compile Include="RawAssetWatcher.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ScriptAsset.cs" />
+    <Compile Include="SetupProperties.xaml.cs">
+      <DependentUpon>SetupProperties.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ShaderAsset.cs" />
     <Compile Include="StateGroup.cs" />
     <Compile Include="StateGroupEditor.xaml.cs">
@@ -151,6 +154,10 @@
     <Page Include="NewParameter.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SetupProperties.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="StateGroupEditor.xaml">
       <SubType>Designer</SubType>

@@ -1,4 +1,4 @@
-﻿<Window x:Class="Glitch2.ImportShader"
+﻿<Window x:Class="AssetManager.ImportShader"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="ImportShader" Width="600" Height="300" >

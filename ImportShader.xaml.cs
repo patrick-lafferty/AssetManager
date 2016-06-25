@@ -1,23 +1,35 @@
-﻿using Microsoft.Win32;
+﻿/*
+MIT License
+
+Copyright (c) 2016 Patrick Lafferty
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.IO;
 using Assets;
 using System.Diagnostics;
 
-namespace Glitch2
+namespace AssetManager 
 {
-    /// <summary>
-    /// Interaction logic for ImportShader.xaml
-    /// </summary>
     public partial class ImportShader : Window
     {
         static readonly int version = 2;
@@ -45,8 +57,7 @@ namespace Glitch2
         internal static string import(string input, string output)
         {
             var process = new Process();
-            process.StartInfo.FileName = @"C:\ProjectStacks\Tools\Debug\ShaderImporter.exe";            
-            //process.StartInfo.Arguments = asset.SourceFilename + " " + (@"C:\ProjectStacks\ImportedAssets\Shaders\" + Path.GetFileNameWithoutExtension(asset.SourceFilename));
+            process.StartInfo.FileName = "ShaderImporter.exe"; //Path.Combine(Properties.Settings.Default.ImportersPath, "ShaderImporter.exe");
             process.StartInfo.Arguments = input + " " + output;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardError = true;
@@ -68,9 +79,8 @@ namespace Glitch2
                 return;
             }
 
-            //string shadersPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\Assets\Shaders\"));
-            string shadersPath = @"C:\ProjectStacks\ImportedAssets\Shaders\";
-            //var outputName = System.IO.Path.Combine(shadersPath, System.IO.Path.ChangeExtension(asset.Name, ".csg"));
+            //TODO: hardcoded path
+            var shadersPath = Path.Combine(Properties.Settings.Default.ImportedAssetsPath, "Shaders");
             var outputName = shadersPath + Path.GetFileNameWithoutExtension(asset.Name);
 
             if (!Directory.Exists(shadersPath))
@@ -78,7 +88,7 @@ namespace Glitch2
                 Directory.CreateDirectory(shadersPath);
             }
 
-            asset.ImportedFilename = outputName;//System.IO.Path.GetFullPath(outputName);
+            asset.ImportedFilename = outputName;
 
             if (!isEditMode && File.Exists(shadersPath + asset.ImportedFilename))
             {
@@ -86,7 +96,7 @@ namespace Glitch2
                 return;
             }
 
-            var result = import(asset.SourceFilename, asset.ImportedFilename); //ShaderImporter.Import(asset);
+            var result = import(asset.SourceFilename, asset.ImportedFilename); 
 
             if (!string.IsNullOrEmpty(result))
             {
@@ -110,7 +120,7 @@ namespace Glitch2
         private void Open(object sender, RoutedEventArgs e)
         {
             var dialog = new OpenFileDialog();
-            dialog.InitialDirectory = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\RawAssets\Shaders\"));;
+            dialog.InitialDirectory = Path.GetFullPath(Path.Combine(Properties.Settings.Default.RawAssetsPath, "Shaders"));;
             dialog.Filter = "High level shading language (*.hlsl) | *.hlsl";
 
             var result = dialog.ShowDialog();

@@ -1,26 +1,36 @@
-﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
+﻿/*
+MIT License
 
+Copyright (c) 2016 Patrick Lafferty
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+using Microsoft.Win32;
+using System;
+using System.Windows;
 using System.IO;
 using Assets;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
-
-namespace Glitch2
+namespace AssetManager 
 {
-    /// <summary>
-    /// Interaction logic for ImportMesh.xaml
-    /// </summary>
     public partial class ImportMesh : Window
     {
         static readonly int version = 4;
@@ -50,8 +60,7 @@ namespace Glitch2
         internal static string import(string input, string output)
         {
             var process = new Process();
-            process.StartInfo.FileName = @"C:\ProjectStacks\Tools\Debug\MeshImporter.exe";
-            //process.StartInfo.Arguments = asset.SourceFilename + " " + (@"C:\ProjectStacks\ImportedAssets\Meshes\" + Path.GetFileNameWithoutExtension(asset.SourceFilename)) + ".mesh";
+            process.StartInfo.FileName = "MeshImporter.exe"; //System.IO.Path.Combine(Properties.Settings.Default.ImportersPath, "MeshImporter.exe");
             process.StartInfo.Arguments = input + " " + output;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardError = true;
@@ -75,7 +84,7 @@ namespace Glitch2
                 return;
             }
 
-            string meshesPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\ImportedAssets\Meshes\"));
+            var meshesPath = System.IO.Path.Combine(Properties.Settings.Default.ImportedAssetsPath, "Meshes");
             var outputName = System.IO.Path.Combine(meshesPath, System.IO.Path.ChangeExtension(asset.Name, "mesh"));
 
             if (!Directory.Exists(meshesPath))
@@ -115,7 +124,7 @@ namespace Glitch2
         private void Open(object sender, RoutedEventArgs e)
         {
             var dialog = new OpenFileDialog();
-            dialog.InitialDirectory = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\RawAssets\Meshes\"));;
+            dialog.InitialDirectory = System.IO.Path.GetFullPath(System.IO.Path.Combine(Properties.Settings.Default.RawAssetsPath, "Meshes"));
             dialog.Filter = "Wavefront (*.obj) | *.obj";
             
             var result = dialog.ShowDialog();

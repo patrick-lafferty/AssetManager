@@ -3,6 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="BaseMaterialOnStateGroup" Height="500" Width="320">
     <Grid>
+
+        <Grid.Background>
+            <LinearGradientBrush>
+
+                <GradientStop 
+                    Color="SkyBlue" 
+                    Offset="0"/>
+
+                <GradientStop 
+                    Color="AliceBlue" 
+                    Offset="1"/>
+
+            </LinearGradientBrush>
+
+        </Grid.Background>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition />

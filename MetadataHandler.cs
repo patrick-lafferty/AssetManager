@@ -1,19 +1,42 @@
-﻿using Assets;
+﻿/*
+MIT License
+
+Copyright (c) 2016 Patrick Lafferty
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+using Assets;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Linq;
 using System.Diagnostics;
 using Importers;
-using AssetManager;
 
-namespace Glitch2
+namespace AssetManager
 {
     internal class MetadataHandler
     {
-        string metadataPath = @"C:\ProjectStacks\RawAssets\Metadata\";
+        string metadataPath
+        {
+            get { return Properties.Settings.Default.MetadataPath; }
+        }
 
         RawAssetWatcher assetWatcher;
         AssetViewmodel viewmodel;
@@ -32,7 +55,6 @@ namespace Glitch2
                     invoke(() =>
                     {
                         viewmodel.LogEvent(error);
-                        //MessageBox.Show("Error while trying to update an asset, see log");
                     });
                 },
                 success =>
@@ -42,12 +64,7 @@ namespace Glitch2
                 asset =>
                 {
                     invoke(() => updateDependents(asset));
-                }/*,
-                toolEvent =>
-                {
-                    invoke(() => client.ProcessEvent(toolEvent));
-                }*/
-
+                }
             );
         }
 
@@ -154,11 +171,11 @@ namespace Glitch2
                     {
                         var c = s.Split(',');
 
-                        return new Glitch2.ImportTexture.ChannelMapping()
+                        return new ImportTexture.ChannelMapping()
                         {
-                            Destination = (Glitch2.ImportTexture.Channel)Enum.Parse(typeof(Glitch2.ImportTexture.Channel), c[0]),
+                            Destination = (ImportTexture.Channel)Enum.Parse(typeof(ImportTexture.Channel), c[0]),
                             Filename = c[1],
-                            Source = (Glitch2.ImportTexture.Channel)Enum.Parse(typeof(Glitch2.ImportTexture.Channel), c[2])
+                            Source = (ImportTexture.Channel)Enum.Parse(typeof(ImportTexture.Channel), c[2])
                         };
                     }).ToList();
                 texture.LastUpdated = parseLastUpdatedDate(metadata[5].Split('=')[1].Trim(), "texture", texture.Name);
@@ -636,8 +653,6 @@ namespace Glitch2
                     //this asset was updated while glitch was offline, update it
                     if (assetWatcher.TryUpdateAsset(mesh))
                     {
-                        /*var updateAssetEvent = new ToolEvents.UpdateAssetEvent() { Asset = mesh, AssetType = ToolEvents.AssetType.Mesh };
-                        client.ProcessEvent(updateAssetEvent);*/
                     }
                 }
             }
@@ -651,8 +666,6 @@ namespace Glitch2
                     //this asset was updated while glitch was offline, update it
                     if (assetWatcher.TryUpdateAsset(texture))
                     {
-                        /*var updateAssetEvent = new ToolEvents.UpdateAssetEvent() { Asset = texture, AssetType = ToolEvents.AssetType.Texture };
-                        client.ProcessEvent(updateAssetEvent);*/
                     }
                 }
             }
@@ -666,8 +679,6 @@ namespace Glitch2
                     //this asset was updated while glitch was offline, update it
                     if (assetWatcher.TryUpdateAsset(script))
                     {
-                        /*var updateAssetEvent = new ToolEvents.UpdateAssetEvent() { Asset = script, AssetType = ToolEvents.AssetType.Script };
-                        client.ProcessEvent(updateAssetEvent);*/
 
                         updateDependents(script);
                     }
@@ -683,8 +694,6 @@ namespace Glitch2
                     //this asset was updated while glitch was offline, update it
                     if (assetWatcher.TryUpdateAsset(shader))
                     {
-                        /*var updateAssetEvent = new ToolEvents.UpdateAssetEvent() { Asset = shader, AssetType = ToolEvents.AssetType.Shader };
-                        client.ProcessEvent(updateAssetEvent);*/
                     }
                 }
             }

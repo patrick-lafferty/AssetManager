@@ -1,7 +1,7 @@
-﻿<Window x:Class="Glitch2.MaterialEditor"
+﻿<Window x:Class="AssetManager.MaterialEditor"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:Glitch2"
+        xmlns:local="clr-namespace:AssetManager"
         Title="MaterialEditor" Width="900" Height="600"
         WindowStartupLocation="CenterOwner">
     <Window.Resources>

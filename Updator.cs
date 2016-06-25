@@ -1,11 +1,30 @@
-﻿using Assets;
-using Glitch2;
+﻿/*
+MIT License
+
+Copyright (c) 2016 Patrick Lafferty
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+using Assets;
+using AssetManager;
 using Importers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AssetManager
 {
@@ -27,14 +46,10 @@ namespace AssetManager
                 {
                     successMessage = "Successfully updated mesh: " + mesh.Name;
 
-                    mesh.LastUpdated = DateTime.Now;//.ToString();
+                    mesh.LastUpdated = DateTime.Now;
                     AssetMetadata.createMeshMetadata(mesh);
 
                     return true;
-                }
-                else
-                {
-                    //error = "ERROR: Updating mesh: " + mesh.Name + " failed!";
                 }
             }
             else if (asset is TextureAsset)
@@ -46,7 +61,7 @@ namespace AssetManager
                 if (string.IsNullOrEmpty(result))
                 {
                     successMessage = "Successfully updated texture: " + texture.Name;
-                    texture.LastUpdated = DateTime.Now;//.ToString();
+                    texture.LastUpdated = DateTime.Now;
                     AssetMetadata.createTextureMetadata(texture);
 
                     return true;
@@ -65,7 +80,7 @@ namespace AssetManager
                 if (string.IsNullOrEmpty(result))
                 {
                     successMessage = "Successfully updated shader: " + shader.Name;
-                    shader.LastUpdated = DateTime.Now;//.ToString();
+                    shader.LastUpdated = DateTime.Now;
                     AssetMetadata.createShaderMetadata(shader);
 
                     return true;
@@ -84,7 +99,7 @@ namespace AssetManager
                 if (result)
                 {
                     successMessage = "Successfully updated material: " + material.Name;
-                    material.LastUpdated = DateTime.Now;//.ToString();
+                    material.LastUpdated = DateTime.Now;
                     AssetMetadata.createMaterialMetadata(material);
 
                     return true;

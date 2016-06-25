@@ -7,9 +7,8 @@ obj/
 Properties/
 Debug/
 Release/
-Agents/
-Tic Tac Toe/
 
+*.db
 *.user
 *.suo
 *.orig

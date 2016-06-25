@@ -1,24 +1,39 @@
-﻿using System;
+﻿/*
+MIT License
+
+Copyright (c) 2016 Patrick Lafferty
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.IO;
 using Microsoft.Win32;
 using Assets;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 
-namespace Glitch2
+namespace AssetManager
 {
-    /// <summary>
-    /// Interaction logic for ImportTexture.xaml
-    /// </summary>
     public partial class ImportTexture : Window
     {
         static readonly int version = 1;
@@ -51,7 +66,6 @@ namespace Glitch2
         internal bool isEditMode = false;
 
         public int ChannelCount {get;set;}
-        //public DXGI_FORMAT Format {get; set;}
         public List<DXGI_FORMAT> AvailableFormats {get; set;}
         public List<Channel> AvailableChannels { get; set; }
         public List<int> AvailableChannelCounts { get; set; }
@@ -67,13 +81,13 @@ namespace Glitch2
             AvailableChannelCounts = new List<int> { 1, 2, 4 };
             Channels = new ObservableCollection<ChannelMapping>();
 
-            this.DataContext = this;// asset;
+            this.DataContext = this;
         }
 
         internal void setAsset(TextureAsset newAsset)
         {
             asset = newAsset;
-            this.DataContext = this; //asset;
+            this.DataContext = this;
             Channels = new ObservableCollection<ChannelMapping>(asset.ChannelMappings);
         }
 
@@ -103,7 +117,7 @@ namespace Glitch2
             });
 
             var process = new Process();
-            process.StartInfo.FileName = @"C:\ProjectStacks\Tools\Debug\ImageConverter.exe";
+            process.StartInfo.FileName = "ImageConverter.exe"; //Path.Combine(Properties.Settings.Default.ImportersPath, "ImageConverter.exe");
             process.StartInfo.Arguments = "DXGI_FORMAT_" + format.ToString() + " " + string.Join(" ", merged) + " " + output;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardError = true;
@@ -118,9 +132,6 @@ namespace Glitch2
         private void Import(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(asset.Name)
-                //|| string.IsNullOrEmpty(asset.SourceFilename)
-                //|| asset.SourceFilenames.Count == 0
-                //|| asset.SourceFilenames.Any(s => string.IsNullOrEmpty(s))
                 || Channels.Count == 0
                 || Channels.Any(c => string.IsNullOrEmpty(c.Filename))
                 || string.IsNullOrEmpty(asset.Description))
@@ -132,9 +143,9 @@ namespace Glitch2
             asset.ChannelMappings = Channels.ToList();
             asset.SourceFilenames = asset.ChannelMappings.Select(c => c.Filename).Distinct().Where(s => s != "null").ToList();
 
-            string texturesPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\ImportedAssets\Textures\"));
+            var texturesPath = Path.GetFullPath(Path.Combine(Properties.Settings.Default.ImportedAssetsPath, "Textures"));
             texturesPath += new DirectoryInfo(asset.SourceFilenames[0]).Parent.Name;
-            var outputName = System.IO.Path.Combine(texturesPath, System.IO.Path.ChangeExtension(asset.Name, "dds"));
+            var outputName = Path.Combine(texturesPath, Path.ChangeExtension(asset.Name, "dds"));
 
             if (!Directory.Exists(texturesPath))
             {
@@ -182,14 +193,13 @@ namespace Glitch2
         private void Open(object sender, RoutedEventArgs e)
         {
             var dialog = new OpenFileDialog();
-            dialog.InitialDirectory = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\RawAssets\Textures\"));;
+            dialog.InitialDirectory = Path.GetFullPath(Path.Combine(Properties.Settings.Default.RawAssetsPath, "Textures"));
             dialog.Filter = "Portable network graphics (*.png) | *.png";
 
             var result = dialog.ShowDialog();
 
             if (result == true)
             {
-                //asset.SourceFilename = dialog.FileName;
                 SelectedChannel.Filename = dialog.FileName;
             }
         }

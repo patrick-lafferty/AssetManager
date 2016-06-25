@@ -1,4 +1,4 @@
-﻿<Window x:Class="Glitch2.ImportTexture"
+﻿<Window x:Class="AssetManager.ImportTexture"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="ImportTexture" Width="600" Height="300" 
