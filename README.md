@@ -17,4 +17,4 @@ Typically you would have a layout like this:
 ├── Game  
 │   ├── RawAssets  
 │   │   └── Metadata  
-│   ├── RawAssetsImportedAssets
+│   ├── ImportedAssets
