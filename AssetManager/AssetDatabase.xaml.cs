@@ -38,21 +38,27 @@ namespace AssetManager
 
         internal AssetManagerUI()
         {
-            var setupProperties = new SetupProperties();
-            var result = setupProperties.ShowDialog();
+            if (string.IsNullOrEmpty(Properties.Settings.Default.ImportedAssetsPath))
+            {
 
-            if (result == true)
-            {
-                Properties.Settings.Default.ImportedAssetsPath = setupProperties.ImportedAssetsPath;
-                Properties.Settings.Default.MetadataPath = setupProperties.MetadataPath;
-                Properties.Settings.Default.RawAssetsPath = setupProperties.RawAssetsPath;
-                Properties.Settings.Default.Save();
-            }
-            else
-            {
-                MessageBox.Show("Properties were not setup, please run again and fill all the textboxes");
-                Application.Current.Shutdown();
-                return;
+                var setupProperties = new SetupProperties();
+                var result = setupProperties.ShowDialog();
+
+                Func<string, string> ensureTrailingSlash = (s) => { if (s.EndsWith("\\")) return s; else return s + "\\"; };
+
+                if (result == true)
+                {
+                    Properties.Settings.Default.ImportedAssetsPath = ensureTrailingSlash(setupProperties.ImportedAssetsPath);        
+                    Properties.Settings.Default.MetadataPath = ensureTrailingSlash(setupProperties.MetadataPath);
+                    Properties.Settings.Default.RawAssetsPath = ensureTrailingSlash(setupProperties.RawAssetsPath);
+                    Properties.Settings.Default.Save();
+                }
+                else
+                {
+                    MessageBox.Show("Properties were not setup, please run again and fill all the textboxes");
+                    Application.Current.Shutdown();
+                    return;
+                }
             }
 
             InitializeComponent();
